@@ -15,7 +15,6 @@
   "bugs": {
     "url": "https://github.com/noellimx/proj-5-back-end/issues"
   },
-  "homepage": "https://github.com/noellimx/proj-5-back-end#readme"
-
-
+  "homepage": "https://github.com/noellimx/proj-5-back-end#readme",
+  "type": "module"
 }
