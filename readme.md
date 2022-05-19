@@ -1,10 +1,3 @@
 # Documentation & Post-Mortem
 
-
-
-
-
 [ ] Readme
-
-
-
