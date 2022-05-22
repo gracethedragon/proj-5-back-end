@@ -1,7 +1,9 @@
 import initModels from "./models/index.js";
 import crypto from "crypto";
 import { systemConfig } from "../config/index.js";
+import jwt from "jsonwebtoken";
 
+// HELPERS
 const hashPassword = (plain) =>
   crypto
     .createHmac("sha256", systemConfig.DB_PASSWORD_HASH)
@@ -9,6 +11,43 @@ const hashPassword = (plain) =>
     .digest("hex");
 
 const JWT_SECRET = crypto.randomBytes(256).toString("base64");
+
+/**
+ *
+ * @typedef {Object} JWTPayload
+ * @property {string} sub identification of user
+ */
+
+/**
+ *
+ * @param {JWTPayload} payload
+ * @returns
+ */
+const newAuthToken = (payload) => {
+  console.log(`[newAuthToken]`);
+
+  const token = jwt.sign(payload, JWT_SECRET);
+
+  return token;
+};
+
+/**
+ *
+ * @returns {[boolean,string]} return verification status and subject if verified
+ */
+const verifyToken = (authToken) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(authToken, JWT_SECRET, (err, decoded) => {
+      if (err) {
+        resolve([false, null, err]);
+      } else {
+        resolve([true, decoded.sub, null]);
+      }
+    });
+  });
+};
+
+// ------
 
 const attachAuthApi = (User) => {
   const createUser = async (username, plainPassword) => {
@@ -62,17 +101,22 @@ const attachAuthApi = (User) => {
     return [id, `Registration Success: #${id} : ${createdUsername} `];
   };
 
-  const getAccessToken = async ({ username, password: clearPassword }) => {
+  /**
+   * Produce an authorization token recognizable by this server.
+   * @param {Object} credentials
+   * @returns
+   */
+  const getAuthToken = async ({ username, password: clearPassword }) => {
     if (!username) {
       return {
-        accessToken: null,
+        authToken: null,
         msg: "User field should not be empty :(",
       };
     }
     const details = await getUserByUsername(username);
     if (!details) {
       return {
-        accessToken: null,
+        authToken: null,
         msg: "User not found.",
       };
     }
@@ -84,25 +128,37 @@ const attachAuthApi = (User) => {
 
     if (!isMatch) {
       return {
-        accessToken: null,
+        authToken: null,
         msg: "Credentials mismatch.",
       };
     }
 
-    const accessToken = newAccessToken({ sub: userId });
-    return { accessToken, msg: "ok" };
+    const authToken = newAuthToken({ sub: userId });
+    return { authToken, msg: "ok" };
   };
-  const isVerifiedToken = async (accessToken) => {
-    const [is, sub] = await verifyToken(accessToken);
+  const isVerifiedToken = async (authToken) => {
+    const [is, sub] = await verifyToken(authToken);
 
     return is;
   };
 
   return {
     registerUser,
-    getAccessToken,
+    getAuthToken,
     isVerifiedToken,
     getUsernameOfUserId,
+    verifyToken,
+  };
+};
+
+const attachedTransactionApi = (User, TrackedTransaction) => {
+  const record = async ({ tracker, type, transactionHash }) => {
+    console.log(`[Transaction Add Record]`);
+    await TrackedTransaction.create({ tracker, type, transactionHash });
+  };
+
+  return {
+    record,
   };
 };
 
@@ -110,12 +166,13 @@ export const initDatabase = (sequelize) => {
   initModels(sequelize);
 
   const models = sequelize.models;
+  const { user, trackedTransaction } = models;
 
-  const auth = attachAuthApi(models.user);
+  const auth = attachAuthApi(user);
+  const transaction = attachedTransactionApi(user, trackedTransaction);
 
   const wipe = async () => {
-    const { user } = models;
-    for await (const model of [user]) {
+    for await (const model of [trackedTransaction, user]) {
       await model.destroy({ where: {} });
     }
   };
@@ -139,6 +196,7 @@ export const initDatabase = (sequelize) => {
     seed,
     api: {
       auth,
+      transaction,
     },
   };
 };
