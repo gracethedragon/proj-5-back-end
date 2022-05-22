@@ -6,7 +6,11 @@
   "scripts": {
     "start-dev": "node index.js",
     "start": "npm run start-dev",
-    "test": "mocha test/test.js"
+    "test": "mocha test/test.js",
+    "db:create": "sequelize db:create",
+    "db:migrate": "sequelize db:migrate",
+    "db:drop": "sequelize db:drop",
+    "db:gen:migration": "sequelize migration:generate --name"
   },
   "repository": {
     "type": "git",
@@ -20,9 +24,13 @@
   "homepage": "https://github.com/noellimx/proj-5-back-end#readme",
   "type": "module",
   "dependencies": {
+    "@babel/register": "^7.17.7",
     "cors": "^2.8.5",
     "express": "^4.18.1",
     "mocha": "^10.0.0",
+    "pg": "^8.7.3",
+    "sequelize": "^6.19.2",
+    "sequelize-cli": "^6.4.1",
     "supertest": "^6.2.3"
   }
 }

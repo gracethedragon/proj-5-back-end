@@ -1,1 +1,3 @@
 # Development Notes
+
+`psql `

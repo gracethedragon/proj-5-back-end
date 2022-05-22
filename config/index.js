@@ -1,5 +1,4 @@
-const config = {
-  ingressPort: 3002,
-};
+import dbConfig from "./db.js";
+import systemConfig from "./system.js";
 
-export default config;
+export { dbConfig, systemConfig };
