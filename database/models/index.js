@@ -30,9 +30,22 @@ const initModel_TrackedTransactions = (sequelize, DataTypes) => {
         allowNull: false,
         field: "tracker",
       },
+      value: {
+        type: DataTypes.DOUBLE,
+        allowNull: false,
+
+        field: "value",
+      },
+      date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+
+        field: "date",
+      },
       type: {
-        type: DataTypes.ENUM(["TRANSFER", "BUY", "SELL"]),
+        type: DataTypes.ENUM(["TRANSFER-IN", "BUY", "SELL"]),
         field: "type",
+        allowNull: false,
       },
       transactionHash: {
         type: DataTypes.STRING,

@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { dbConfig, systemConfig } from "../config/index.js";
+import axios from "axios";
 
 import connectSequelize from "../database/connection/index.js";
 import initDatabase from "../database/index.js";
@@ -50,26 +51,52 @@ app.get("/login-user", async (req, res) => {
   res.status(404).json({ msg });
 });
 
+const CHAIN_NETWORK = "ethereum";
 app.post("/track-transaction", async (req, res) => {
   console.log(`[POST /track-transaction]`);
-  const { authToken, transactionType, transactionHash } = req.body;
+  const { authToken, transactionType: type, transactionHash } = req.body;
 
   try {
-    const [is, sub, verifyError] = await db.api.auth.verifyToken(authToken);
+    const [_, sub, __] = await db.api.auth.verifyToken(authToken);
+
+    const txData = await axios.get(
+      `https://api.blockchair.com/ethereum/dashboards/transaction/${transactionHash}`
+    );
+
+    const details = txData.data.data[transactionHash].transaction;
+    const { value_usd, time } = details;
 
     const username = await db.api.auth.getUsernameOfUserId(sub);
     const trackedTransaction = await db.api.transaction.record({
       tracker: username,
-      transactionType,
+      type,
+      value: value_usd,
+      date: time,
       transactionHash,
     });
-    console.log(trackedTransaction);
 
-    res.sendStatus(200);
+    return res.sendStatus(200);
   } catch (err) {
     console.log(err);
-    res.status(501).json(err);
+    res.status(400).json(err);
   }
 });
 
+app.get("/all-transactions", async (req, res) => {
+  console.log(`[get /all-transactions]`);
+
+  try {
+    const { authToken } = req.body;
+
+    const [_, sub, __] = await db.api.auth.verifyToken(authToken);
+    const username = await db.api.auth.getUsernameOfUserId(sub);
+
+    const transactions =
+      await db.api.transaction.getTransactionsOfUserWithStatistics({
+        username,
+      });
+
+    res.status(200).json({ transactions });
+  } catch (err) {}
+});
 export default app;

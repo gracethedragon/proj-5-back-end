@@ -2,6 +2,7 @@ import initModels from "./models/index.js";
 import crypto from "crypto";
 import { systemConfig } from "../config/index.js";
 import jwt from "jsonwebtoken";
+import axios from "axios";
 
 // HELPERS
 const hashPassword = (plain) =>
@@ -151,25 +152,119 @@ const attachAuthApi = (User) => {
   };
 };
 
-const attachedTransactionApi = (User, TrackedTransaction) => {
-  const record = async ({ tracker, type, transactionHash }) => {
+const mockAssetValueETH = 2000;
+
+const getCurrentUSDPrice = async (network, production) => {
+  if (!(production === true || production === false)) {
+    throw new Error("Environment for conversion rate not found");
+  }
+  switch (network) {
+    case "ETH":
+      if (production === true) {
+        return await axios.get(
+          "https://api.blockchain.com/v3/exchange/tickers/ETH-USD"
+        );
+      }
+      return mockAssetValueETH;
+
+    default:
+      throw new Error("Conversion rate not found");
+  }
+};
+const getOutlayAndAssetPrice = async (transaction, production) => {
+  try {
+    const type = transaction.type;
+
+    if (type === "BUY") {
+      const { date, value } = transaction;
+      const outlay = { date, value };
+      const _value = await getCurrentUSDPrice("ETH", production);
+
+      const gainValue = { value: _value, date: Date.now() };
+      return [outlay, gainValue];
+    } else if (type === "TRANSFER-IN") {
+      const outlay = null;
+      const value = await getCurrentUSDPrice("ETH", production);
+      const gainValue = { value, date: Date.now() };
+
+      return [outlay, gainValue];
+    } else if (type === "SELL") {
+      const outlay = null;
+
+      const { date, value } = transaction;
+      const gainPrice = { date, value };
+      return [outlay, gainPrice];
+    }
+  } catch (err) {
+    console.log(err);
+    return [null, null];
+  }
+};
+
+const attachedTransactionApi = (
+  { User, TrackedTransaction },
+  { production }
+) => {
+  const record = async ({ tracker, type, transactionHash, value, date }) => {
     console.log(`[Transaction Add Record]`);
-    await TrackedTransaction.create({ tracker, type, transactionHash });
+    return await TrackedTransaction.create({
+      tracker,
+      type,
+      transactionHash,
+      value,
+      date,
+    });
+  };
+
+  const getTransactionsOfUserWithStatistics = async (
+    { username },
+    production = false
+  ) => {
+    console.log(
+      `[getTransactionsOfUserWithStatistics] for username ${username} production ${production}`
+    );
+
+    const txs = await TrackedTransaction.findAll({
+      where: { tracker: username },
+    });
+
+    const processed = txs.map(async (tx, index) => {
+      try {
+        console.log(index);
+        const { dataValues: transaction } = tx;
+        const { tracker, type, transactionHash, id } = transaction;
+        const [outlayUSD, gainValueUSD] = await getOutlayAndAssetPrice(
+          transaction,
+          production
+        );
+
+        return { tracker, type, transactionHash, id, outlayUSD, gainValueUSD };
+      } catch (err) {
+        console.log(err);
+        return {};
+      }
+    });
+
+    return await Promise.all(processed);
   };
 
   return {
     record,
+    getTransactionsOfUserWithStatistics,
   };
 };
 
-export const initDatabase = (sequelize) => {
+export const initDatabase = (sequelize, production = false) => {
   initModels(sequelize);
 
   const models = sequelize.models;
   const { user, trackedTransaction } = models;
 
   const auth = attachAuthApi(user);
-  const transaction = attachedTransactionApi(user, trackedTransaction);
+  const transaction = attachedTransactionApi(
+    { User: user, TrackedTransaction: trackedTransaction },
+    { production }
+  );
 
   const wipe = async () => {
     for await (const model of [trackedTransaction, user]) {

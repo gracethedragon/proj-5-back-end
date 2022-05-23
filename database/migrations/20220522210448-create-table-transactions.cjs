@@ -28,8 +28,17 @@ module.exports = {
         },
         allowNull: false,
       },
+      value: {
+        type: DataTypes.DOUBLE,
+        allowNull: false,
+      },
+      date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
       type: {
-        type: DataTypes.ENUM(["TRANSFER", "BUY", "SELL"]),
+        type: DataTypes.ENUM(["TRANSFER-IN", "BUY", "SELL"]),
+        allowNull: false,
       },
       transaction_hash: {
         type: DataTypes.STRING,
