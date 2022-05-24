@@ -87,8 +87,44 @@ describe("some", async () => {
         transactionHash:
           "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
       });
+    console.log(resOfTransaction_Buy.body);
 
-    assert.strictEqual(200, resOfTransaction_Buy.status);
+    (() => {
+      assert.strictEqual(200, resOfTransaction_Buy.status);
+      assert.notStrictEqual(null, resOfTransaction_Buy.body.transactions);
+      assert.notStrictEqual(undefined, resOfTransaction_Buy.body.transactions);
+
+      const { transactions } = resOfTransaction_Buy.body;
+
+      assert(Array.isArray(transactions));
+
+      assert.strictEqual(1, transactions.length);
+
+      const transaction = transactions[0];
+      assert.strictEqual(
+        "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
+        transaction.hash
+      );
+      assert.strictEqual(0.5, transaction.qty);
+
+      assert.strictEqual("ETH", transaction.network);
+      assert.strictEqual("BUY", transaction.transactionType);
+      assert.notStrictEqual(null, transaction.txValue);
+      assert.notStrictEqual(undefined, transaction.txValue);
+
+      const { txValue } = transaction;
+      console.log(txValue);
+      assert.strictEqual(1045.678, Number(txValue.value.toFixed(3)));
+
+      assert.notStrictEqual(null, transaction.currentValue);
+      assert.notStrictEqual(undefined, transaction.currentValue);
+
+      const { currentValue } = transaction;
+
+      console.log(currentValue);
+    })();
+
+    return;
 
     const resOfTransaction_Sell = await request(app)
       .post("/track-transaction")

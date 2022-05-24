@@ -205,14 +205,24 @@ const attachedTransactionApi = (
   { User, TrackedTransaction },
   { production }
 ) => {
-  const record = async ({ tracker, type, transactionHash, value, date }) => {
+  const record = async ({
+    tracker,
+    type,
+    transactionHash,
+    value,
+    valueUSD,
+    network,
+    date,
+  }) => {
     console.log(`[Transaction Add Record]`);
     return await TrackedTransaction.create({
       tracker,
       type,
       transactionHash,
       value,
+      valueUSD,
       date,
+      network,
     });
   };
 

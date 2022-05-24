@@ -32,6 +32,14 @@ module.exports = {
         type: DataTypes.DOUBLE,
         allowNull: false,
       },
+      valueUSD: {
+        type: DataTypes.DOUBLE,
+        allowNull: false,
+      },
+      network: {
+        type: DataTypes.ENUM(["ETH"]),
+        allowNull: false,
+      },
       date: {
         type: DataTypes.DATE,
         allowNull: false,

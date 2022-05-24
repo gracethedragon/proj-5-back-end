@@ -36,6 +36,19 @@ const initModel_TrackedTransactions = (sequelize, DataTypes) => {
 
         field: "value",
       },
+      network: {
+        type: DataTypes.ENUM(["ETH"]),
+        allowNull: false,
+        field: "network",
+      },
+
+      valueUSD: {
+        type: DataTypes.DOUBLE,
+        allowNull: false,
+
+        field: "valueUSD",
+      },
+
       date: {
         type: DataTypes.DATE,
         allowNull: false,
