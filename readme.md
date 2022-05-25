@@ -6,7 +6,7 @@
 
 [ ] Readme
 
-Development Steps
+# Development Steps
 `npm i` install package
 `./hard-reset-db.sh`initialize db
 `npm start` run development server
