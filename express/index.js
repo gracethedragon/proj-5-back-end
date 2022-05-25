@@ -14,7 +14,7 @@ await db.seed();
 
 const app = express();
 
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: "localhost:3001" }));
 app.use(express.json());
 
 app.get("/is-server-online", (_, res) => res.sendStatus(200));
