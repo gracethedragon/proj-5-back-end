@@ -18,7 +18,7 @@ const coinmarketcapDvlpConfig = {
   urls: {
     prices: "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest",
   },
-  key: "32288ef2-77bd-4808-8e19-2015887e2738",
+  key: "CAT-FISH-DOG",
 };
 
 ("https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?symbol=ETH&convert=USD");

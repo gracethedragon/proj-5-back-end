@@ -122,6 +122,19 @@ describe("some", async () => {
       const { currentValue } = transaction;
 
       console.log(currentValue);
+
+      const { stats } = resOfTransaction_Buy.body;
+
+      assert.notStrictEqual(null, stats);
+      assert.notStrictEqual(undefined, stats);
+
+      assert.notStrictEqual(null, stats.outlay);
+      assert.notStrictEqual(undefined, stats.outlay);
+      assert.strictEqual(1045.678, Number(stats.outlay.toFixed(3)));
+      assert.notStrictEqual(null, stats.unrealrev);
+      assert.notStrictEqual(undefined, stats.unrealrev);
+      assert(!Number.isNaN(Number(stats.unrealrev.toFixed(3))));
+      assert.strictEqual(0, Number(stats.saleoutlay.toFixed(3)));
     })();
 
     return;
