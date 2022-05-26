@@ -68,9 +68,13 @@ const attachAuthApi = (User) => {
 
   const getUsernameOfUserId = async (id) => {
     console.log(`[getUsernameOfUserId] id ${id}`);
-    const user = await User.findOne({ where: { id } });
+    try {
+      const user = await User.findOne({ where: { id } });
 
-    return user.getDataValue("username");
+      return user.getDataValue("username");
+    } catch (err) {
+      return null;
+    }
   };
 
   const isUserExistingByUsername = async (username) =>
@@ -231,36 +235,18 @@ const attachedTransactionApi = (
     });
   };
 
-  const getTransactionsOfUserWithStatistics = async (
-    { username },
-    production = false
-  ) => {
+  const getTransactionsOfUser = async ({ username }, production = false) => {
     console.log(
-      `[getTransactionsOfUserWithStatistics] for username ${username} production ${production}`
+      `[getTransactionsOfUser] for username ${username} production ${production}`
     );
 
     const txs = await TrackedTransaction.findAll({
       where: { tracker: username },
     });
 
-    const processed = txs.map(async (tx, index) => {
-      try {
-        console.log(index);
-        const { dataValues: transaction } = tx;
-        const { tracker, type, transactionHash, id } = transaction;
-        const [outlayUSD, gainValueUSD] = await getOutlayAndAssetPrice(
-          transaction,
-          production
-        );
+    const dvs = txs.map(({ dataValues }) => dataValues);
 
-        return { tracker, type, transactionHash, id, outlayUSD, gainValueUSD };
-      } catch (err) {
-        console.log(err);
-        return {};
-      }
-    });
-
-    return await Promise.all(processed);
+    return dvs;
   };
 
   const getTransactionById = async (id) =>
@@ -268,9 +254,15 @@ const attachedTransactionApi = (
       where: { id },
     });
 
+  const deleteTransactionById = async (id, tracker) =>
+    await TrackedTransaction.destroy({
+      where: { id, tracker },
+    });
+
   return {
     record,
-    getTransactionsOfUserWithStatistics,
+    getTransactionsOfUser,
+    deleteTransactionById,
     getTransactionById,
   };
 };

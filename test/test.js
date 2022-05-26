@@ -7,14 +7,22 @@ import app from "../express/index.js";
 const username = "user1" + crypto.randomUUID().toString().slice(0, 6);
 const password = "tss";
 
-const getAuthTokenResponse = async () => {
+const gettokenResponse = async () => {
   const res = await request(app)
     .get("/login")
     .set("Accept", "application/json")
-    .send({ username, password });
+    .query({ email: username, password });
 
   return res;
 };
+
+const httpGetAllTransactions = async (app, token) =>
+  await request(app)
+    .get("/all-transactions")
+    .set("Accept", "application/json")
+    .send({
+      token,
+    });
 
 describe("GET /is-server-online", () => {
   it("should echo 200", (done) => {
@@ -35,8 +43,13 @@ describe("User Story 1+ ", async () => {
     assert.strictEqual(res.status, 200);
   });
 
+  it("should login registered user", async () => {
+    const res = await gettokenResponse();
+    assert.strictEqual(res.status, 200);
+  });
+
   it("Server should provision an access token", async () => {
-    const res = await getAuthTokenResponse();
+    const res = await gettokenResponse();
 
     assert.strictEqual(200, res.status);
 
@@ -52,10 +65,10 @@ describe("some", async () => {
   it("[001]Should be able to record a transaction ", async () => {
     // Login
 
-    const _res = await getAuthTokenResponse();
-    const authToken = _res.body.token;
+    const _res = await gettokenResponse();
+    const token = _res.body.token;
     const usernameReceived = _res.body.username;
-    assert(!!authToken);
+    assert(!!token);
     assert(usernameReceived, username);
 
     // Malformed Request
@@ -63,37 +76,50 @@ describe("some", async () => {
       .post("/track-transaction")
       .set("Accept", "application/json")
       .send({
-        authToken,
+        token,
         transactionType: "asdfkusgadfasdf",
         transactionHash:
           "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
       });
 
+    // Record 3 transactions - START
     assert.strictEqual(400, resOfMalformedRequest.status);
     const resOfTransaction_Transfer = await request(app)
       .post("/track-transaction")
       .set("Accept", "application/json")
       .send({
-        authToken,
+        token,
         transactionType: "TRANSFER-IN",
         transactionHash:
           "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
       });
 
-    assert.strictEqual(200, resOfTransaction_Transfer.status);
-
     const resOfTransaction_Buy = await request(app)
       .post("/track-transaction")
       .set("Accept", "application/json")
       .send({
-        authToken,
+        token,
         transactionType: "BUY",
         transactionHash:
           "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
       });
 
+    const resOfTransaction_Sell = await request(app)
+      .post("/track-transaction")
+      .set("Accept", "application/json")
+      .send({
+        token,
+        transactionType: "SELL",
+        transactionHash:
+          "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
+      });
+
+    assert.strictEqual(200, resOfTransaction_Transfer.status);
+    assert.strictEqual(200, resOfTransaction_Buy.status);
+    assert.strictEqual(200, resOfTransaction_Sell.status);
+    // Record 3 transactions - END
+
     await (async () => {
-      assert.strictEqual(200, resOfTransaction_Buy.status);
       assert.notStrictEqual(null, resOfTransaction_Buy.body.transactions);
       assert.notStrictEqual(undefined, resOfTransaction_Buy.body.transactions);
       const { transactions } = resOfTransaction_Buy.body;
@@ -111,10 +137,12 @@ describe("some", async () => {
         .get("/view-transaction")
         .set("Accept", "application/json")
         .send({
-          authToken,
+          token,
           dbtransactionId: transaction.id,
         });
-      console.log(" -----[001] checkpoint 2 ");
+      console.log(
+        " -----[001] resOfTransaction_ViewBuy Should return status 200"
+      );
 
       assert.strictEqual(200, resOfTransaction_ViewBuy.status);
 
@@ -154,54 +182,60 @@ describe("some", async () => {
       assert.strictEqual(0, Number(stats.saleoutlay.toFixed(3)));
     })();
 
-    return;
+    /**
+     * Get the transactions
+     */
 
-    const resOfTransaction_Sell = await request(app)
-      .post("/track-transaction")
-      .set("Accept", "application/json")
-      .send({
-        authToken,
-        transactionType: "SELL",
-        transactionHash:
-          "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
-      });
+    const allTransactionsResponse = await httpGetAllTransactions(app, token);
+    assert.strictEqual(200, allTransactionsResponse.status);
 
-    assert.strictEqual(200, resOfTransaction_Sell.status);
+    await (async () => {
+      const { transactions } = allTransactionsResponse.body;
+      assert.strictEqual(3, transactions.length);
 
-    const getAllTransactionResponse = await request(app)
-      .get("/all-transactions")
-      .set("Accept", "application/json")
-      .send({
-        authToken,
-      });
+      const transactionBuyIdFromTrackedTransaction =
+        resOfTransaction_Buy.body.transactions[0].id;
+      const buyTransactionIdReceivedFromGetAllTransactions =
+        transactions.filter(
+          ({ id }) => id === transactionBuyIdFromTrackedTransaction
+        )[0].id;
+      assert.strictEqual(
+        buyTransactionIdReceivedFromGetAllTransactions,
+        transactionBuyIdFromTrackedTransaction
+      );
 
-    assert.strictEqual(200, getAllTransactionResponse.status);
+      const viewBuyTransactionResponse = await request(app)
+        .get("/view-transaction")
+        .set("Accept", "application/json")
+        .send({
+          token,
+          dbtransactionId: buyTransactionIdReceivedFromGetAllTransactions,
+        });
+      assert.strictEqual(200, viewBuyTransactionResponse.status);
+      const deleteBuyTransactionResponse = await request(app)
+        .delete("/transaction")
+        .set("Accept", "application/json")
+        .send({
+          token,
+          dbtransactionId: buyTransactionIdReceivedFromGetAllTransactions,
+        });
 
-    const { transactions } = getAllTransactionResponse.body;
+      assert.strictEqual(200, deleteBuyTransactionResponse.status);
 
-    assert.strictEqual(3, transactions.length);
+      const allTxCountAfterDeleteOne = (
+        await httpGetAllTransactions(app, token)
+      ).body.transactions.length;
 
-    const totalOutLay = transactions.reduce((sum, tx) => {
-      console.log(tx);
-      try {
-        const value = tx?.outlayUSD?.value ?? 0;
-        return sum + value;
-      } catch (err) {
-        return sum;
-      }
-    }, 0);
+      assert.strictEqual(2, allTxCountAfterDeleteOne);
+    })();
 
-    const totalAssetPrice = transactions.reduce((sum, tx) => {
-      console.log(tx);
-      try {
-        const value = tx?.gainValueUSD?.value ?? 0;
-        return sum + value;
-      } catch (err) {
-        return sum;
-      }
-    }, 0);
+    /** TODO
+     */
 
-    assert.strictEqual(1045.68, Number(totalOutLay.toFixed(2)));
-    assert.strictEqual(5045.68, Number(totalAssetPrice.toFixed(2)));
+    await (async () => {
+      console.info("TODO - verify statistics");
+    })();
+
+    await (async () => {})();
   }).timeout(0);
 });

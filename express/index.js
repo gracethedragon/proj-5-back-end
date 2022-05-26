@@ -17,6 +17,31 @@ const app = express();
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
+/**
+ *
+ *  @typedef {Object} Value
+ * @property {Date} date
+ * @property {number} value in USD
+ */
+
+/**
+ *
+ * @typedef {Object} TransactionFE
+ *  @property {string} hash
+ *  @property {number} qty
+ *  @property {number} id
+ * @property  {string} network
+ * @property  {string} transactionType
+ * @property  {TxValue} txValue
+ * @property  {Value} currentValue
+ */
+
+/**
+ *
+ * @typedef {Object} PriceChecker
+ * @property {Value} ETH
+ */
+
 app.get("/is-server-online", (_, res) => res.sendStatus(200));
 
 app.post("/register", async (req, res) => {
@@ -72,6 +97,11 @@ const coinmarketcapDvlpConfig = {
 };
 
 const coinmarketConfig = coinmarketcapSandboxConfig;
+
+/**
+ *
+ * @returns {Promise<PriceChecker>}
+ */
 export const CurrentPriceChecker = async () => {
   const response = await axios.get(`${coinmarketConfig.urls.prices}`, {
     headers: { "X-CMC_PRO_API_KEY": coinmarketConfig.key },
@@ -79,7 +109,6 @@ export const CurrentPriceChecker = async () => {
   });
   const { data } = response;
   const { data: prices } = data;
-  console.log(prices);
   const ETH = {
     value: prices["ETH"][0]["quote"]["USD"].price,
     date: prices["ETH"][0]["quote"]["USD"].last_updated,
@@ -158,9 +187,13 @@ const getHashData = async (transactionHash) => {
   return { valueUSD, value: qty, date, network, transactionHash };
 };
 
-const transactionDvToFrondEnd = (transactionDv) => {
-  console.log("txdvfe");
-  console.log(transactionDv);
+/**
+ *
+ * @param {TransactionDBColumns} transactionDv
+ * @param {PriceChecker} priceChecker
+ * @returns
+ */
+const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
   const {
     transactionHash: hash,
     value,
@@ -170,6 +203,7 @@ const transactionDvToFrondEnd = (transactionDv) => {
     id,
     valueUSD,
   } = transactionDv;
+  const currentValue = priceChecker[network];
 
   return {
     hash,
@@ -178,18 +212,42 @@ const transactionDvToFrondEnd = (transactionDv) => {
     network,
     transactionType,
     txValue: { date, value: valueUSD },
+    currentValue,
   };
 };
 
-const transactionDvsToFrondEnd = (transactionDvs, priceChecker) => {
-  return transactionDvs.map((dv) => {
-    const base = transactionDvToFrondEnd(dv);
-    const currentValue = priceChecker[base.network];
+/**
+ *
+ * @param {*} transactionDvs
+ * @param {*} priceChecker
+ * @returns {Array<TransactionFE>} transactions
+ */
+const transactionDvsToFrondEnd = (transactionDvs, priceChecker) =>
+  transactionDvs.map((dv) => transactionDvToFrondEnd(dv, priceChecker));
 
-    return { ...base, currentValue };
-  });
-};
+/**
+ *
+ * @typedef {Object} Statistics
+ * @property {number} outlay
+ * @property {number} unrealrev
+ * @property {number} saleoutlay
+ * @property {number} unrealgl
+ * @property {number} realgl
+ * @property {number} actualrev
+ */
 
+/**
+ *
+ * @typedef {Object} TransactionView
+ * @property {Statistics} stats
+ * @property {Array<TransactionFE>} transactions
+ */
+
+/**
+ *
+ * @param {TransactionDBColumns} transactionDvs
+ * @returns {TransactionView}
+ */
 const getView = async (transactionDvs) => {
   const priceChecker = await CurrentPriceChecker();
 
@@ -236,11 +294,6 @@ app.post("/track-transaction", async (req, res) => {
   }
 });
 
-// TODO
-app.delete("/transaction", (req) => {
-  // TODO MUST DELETE FROM VIEW ALSO
-});
-
 app.post("/add-view", (req) => {
   // { token, transactionIds}
 });
@@ -256,32 +309,42 @@ app.get("/all-transactions", async (req, res) => {
   try {
     const { token, filterBy } = req.body;
 
+    // We enforce here instead of in the api
     if (!["Network", "Date", undefined, null].includes(filterBy)) {
       return res.status(400).json({ msg: "Invalid Filter Parameter" });
     }
     const [_, sub, __] = await db.api.auth.verifyToken(token);
     const username = await db.api.auth.getUsernameOfUserId(sub);
-    // TODO// TODO// TODO// TODO
-    const transactions =
-      await db.api.transaction.getTransactionsOfUserWithStatistics({
-        username,
-        filterBy,
-      });
+    const transactions = await db.api.transaction.getTransactionsOfUser({
+      username,
+      filterBy,
+    });
 
-    res.status(200).json({ transactions });
-  } catch (err) {}
+    console.log(`[get /all-transactions] transactions of Users`);
+
+    console.log(transactions);
+
+    const view = await getView(transactions);
+    res.status(200).json(view);
+  } catch (err) {
+    console.log(err);
+
+    res.sendStatus(501);
+  }
 });
 
 app.get("/view-transaction", async (req, res) => {
   console.log(`Server [GET /view-transaction]`);
-  const { authToken, dbtransactionId } = req.body;
+  console.log(req.body);
+  const { token, dbtransactionId } = req.body;
 
-  const [_, sub, __] = await db.api.auth.verifyToken(authToken);
-  const username = await db.api.auth.getUsernameOfUserId(sub);
+  const [_, sub, __] = await db.api.auth.verifyToken(token);
 
-  if (!username) {
+  if (!sub) {
     return res.sendStatus(401);
   }
+
+  const username = await db.api.auth.getUsernameOfUserId(sub);
 
   try {
     const trackedTransaction = await db.api.transaction.getTransactionById(
@@ -290,10 +353,48 @@ app.get("/view-transaction", async (req, res) => {
 
     const { dataValues } = trackedTransaction;
 
+    if (username !== dataValues.tracker) {
+      return res
+        .status(403)
+        .json({ msg: "Requestor is not tracker of transaction." });
+    }
+
     const view = await getView([dataValues]);
 
     return res.status(200).json(view);
   } catch (err) {
+    res.sendStatus(500);
+  }
+});
+
+// TODO
+app.delete("/transaction", async (req, res) => {
+  // TODO MUST DELETE FROM VIEW ALSO
+  console.log(`Server [DELETE /transaction]`);
+  console.log(req.body);
+  const { token, dbtransactionId } = req.body;
+
+  const [_, sub, __] = await db.api.auth.verifyToken(token);
+
+  if (!sub) {
+    return res.sendStatus(401);
+  }
+
+  const username = await db.api.auth.getUsernameOfUserId(sub);
+
+  try {
+    const removedTransactionCount =
+      await db.api.transaction.deleteTransactionById(dbtransactionId, username);
+
+    if (removedTransactionCount === 1) {
+      return res.sendStatus(200);
+    }
+    if (removedTransactionCount === 0) {
+      return res.sendStatus(404);
+    }
+    throw new Error("Server route should only delete at most 1 entry.");
+  } catch (err) {
+    console.log(err);
     res.sendStatus(500);
   }
 });
