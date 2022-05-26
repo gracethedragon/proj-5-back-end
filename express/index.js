@@ -14,7 +14,9 @@ await db.seed();
 
 const app = express();
 
-app.use(cors({ origin: "localhost:3001" }));
+
+
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 app.get("/is-server-online", (_, res) => res.sendStatus(200));
@@ -36,11 +38,15 @@ app.post("/register", async (req, res) => {
 
 app.get("/login", async (req, res) => {
   console.log(`[GET /login]`);
-  const { username, password } = req.body;
+  const { email, password } = req.query;
+  
+  console.log({ email, password });
+
   const data = await db.api.auth.getAuthToken({
-    username,
+    username: email,
     password,
   });
+
   console.log(data);
   const { authToken, msg, username: usernameInDb } = data;
 
@@ -68,15 +74,14 @@ const coinmarketcapDvlpConfig = {
 };
 
 const coinmarketConfig = coinmarketcapSandboxConfig;
-const CurrentPriceChecker = async () => {
+export const CurrentPriceChecker = async () => {
   const response = await axios.get(`${coinmarketConfig.urls.prices}`, {
     headers: { "X-CMC_PRO_API_KEY": coinmarketConfig.key },
     params: { symbol: "ETH", convert: "USD" },
   });
-
   const { data } = response;
   const { data: prices } = data;
-
+  console.log(prices)
   const ETH = {
     value: prices["ETH"][0]["quote"]["USD"].price,
     date: prices["ETH"][0]["quote"]["USD"].last_updated,
@@ -195,12 +200,18 @@ const getView = async (transactionDvs) => {
 
   return { stats, transactions };
 };
+
+
+/**
+ * axios.get(url, { params: data }) => req.queries
+ * axios.post(url, data ) => req.body
+ */
 app.post("/track-transaction", async (req, res) => {
   console.log(`[POST /track-transaction]`);
-  const { authToken, transactionType: type, transactionHash } = req.body;
-
+  const { token, transactionType: type, transactionHash } = req.body;
+  console.log(req.body)
   try {
-    const [_, sub, __] = await db.api.auth.verifyToken(authToken);
+    const [_, sub, __] = await db.api.auth.verifyToken(token);
     const username = await db.api.auth.getUsernameOfUserId(sub);
 
     const hashData = await getHashData(transactionHash);
@@ -218,13 +229,62 @@ app.post("/track-transaction", async (req, res) => {
     const { dataValues } = trackedTransaction;
 
     const view = await getView([dataValues]);
+    console.log(`[POST track-transaction] `)
 
+    console.log(view)
     return res.status(200).json(view);
   } catch (err) {
     console.log(err);
     res.status(400).json(err);
   }
 });
+
+
+// TODO
+app.delete("/transaction", (req)=> {
+
+  // TODO MUST DELETE FROM VIEW ALSO
+})
+
+
+app.post("/add-view", (req)=> {
+
+  // { token, transactionIds}
+
+})
+
+
+
+app.delete("/view", (req)=> {
+
+  // { token, transactionId}
+
+})
+
+// TODO
+app.get("/all-transactions", async (req, res) => {
+  console.log(`[get /all-transactions]`);
+
+  try {
+    const { token, filterBy } = req.body;
+
+    if(!["Network", "Date", undefined, null].includes(filterBy) ){
+
+      return res.status(400).json({msg: "Invalid Filter Parameter"})
+
+    }
+    const [_, sub, __] = await db.api.auth.verifyToken(token);
+    const username = await db.api.auth.getUsernameOfUserId(sub);
+    // TODO// TODO// TODO// TODO
+    const transactions =
+      await db.api.transaction.getTransactionsOfUserWithStatistics({
+        username, filterBy
+      });
+
+    res.status(200).json({ transactions });
+  } catch (err) {}
+});
+
 
 app.get("/view-transaction", async (req, res) => {
   console.log(`Server [GET /view-transaction]`);
@@ -252,21 +312,5 @@ app.get("/view-transaction", async (req, res) => {
   }
 });
 
-app.get("/all-transactions", async (req, res) => {
-  console.log(`[get /all-transactions]`);
 
-  try {
-    const { authToken } = req.body;
-
-    const [_, sub, __] = await db.api.auth.verifyToken(authToken);
-    const username = await db.api.auth.getUsernameOfUserId(sub);
-
-    const transactions =
-      await db.api.transaction.getTransactionsOfUserWithStatistics({
-        username,
-      });
-
-    res.status(200).json({ transactions });
-  } catch (err) {}
-});
 export default app;
