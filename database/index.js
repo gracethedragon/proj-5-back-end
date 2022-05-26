@@ -40,15 +40,14 @@ const attachAuthApi = (User) => {
    * @returns {Promise<[boolean,string,Error]>} return verification status and subject if verified
    */
   const verifyToken = (authToken) => {
-
-    console.log(`[verifyToken] verifying ${authToken}`)
+    console.log(`[verifyToken] verifying ${authToken}`);
     return new Promise((resolve, reject) => {
       jwt.verify(authToken, JWT_SECRET, (err, decoded) => {
         if (err) {
-          console.log(`[verifyToken] Error`)
+          console.log(`[verifyToken] Error`);
           resolve([false, null, err]);
         } else {
-          console.log(`[Verify Token Ok] ${decoded}`)
+          console.log(`[Verify Token Ok] ${decoded}`);
           resolve([true, decoded.sub, null]);
         }
       });
@@ -68,7 +67,7 @@ const attachAuthApi = (User) => {
     await User.findOne({ where: { username } });
 
   const getUsernameOfUserId = async (id) => {
-    console.log(`[getUsernameOfUserId] id ${id}`)
+    console.log(`[getUsernameOfUserId] id ${id}`);
     const user = await User.findOne({ where: { id } });
 
     return user.getDataValue("username");

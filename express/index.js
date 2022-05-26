@@ -14,8 +14,6 @@ await db.seed();
 
 const app = express();
 
-
-
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
@@ -39,7 +37,7 @@ app.post("/register", async (req, res) => {
 app.get("/login", async (req, res) => {
   console.log(`[GET /login]`);
   const { email, password } = req.query;
-  
+
   console.log({ email, password });
 
   const data = await db.api.auth.getAuthToken({
@@ -81,7 +79,7 @@ export const CurrentPriceChecker = async () => {
   });
   const { data } = response;
   const { data: prices } = data;
-  console.log(prices)
+  console.log(prices);
   const ETH = {
     value: prices["ETH"][0]["quote"]["USD"].price,
     date: prices["ETH"][0]["quote"]["USD"].last_updated,
@@ -201,7 +199,6 @@ const getView = async (transactionDvs) => {
   return { stats, transactions };
 };
 
-
 /**
  * axios.get(url, { params: data }) => req.queries
  * axios.post(url, data ) => req.body
@@ -209,7 +206,7 @@ const getView = async (transactionDvs) => {
 app.post("/track-transaction", async (req, res) => {
   console.log(`[POST /track-transaction]`);
   const { token, transactionType: type, transactionHash } = req.body;
-  console.log(req.body)
+  console.log(req.body);
   try {
     const [_, sub, __] = await db.api.auth.verifyToken(token);
     const username = await db.api.auth.getUsernameOfUserId(sub);
@@ -229,9 +226,9 @@ app.post("/track-transaction", async (req, res) => {
     const { dataValues } = trackedTransaction;
 
     const view = await getView([dataValues]);
-    console.log(`[POST track-transaction] `)
+    console.log(`[POST track-transaction] `);
 
-    console.log(view)
+    console.log(view);
     return res.status(200).json(view);
   } catch (err) {
     console.log(err);
@@ -239,27 +236,18 @@ app.post("/track-transaction", async (req, res) => {
   }
 });
 
-
 // TODO
-app.delete("/transaction", (req)=> {
-
+app.delete("/transaction", (req) => {
   // TODO MUST DELETE FROM VIEW ALSO
-})
+});
 
-
-app.post("/add-view", (req)=> {
-
+app.post("/add-view", (req) => {
   // { token, transactionIds}
+});
 
-})
-
-
-
-app.delete("/view", (req)=> {
-
+app.delete("/view", (req) => {
   // { token, transactionId}
-
-})
+});
 
 // TODO
 app.get("/all-transactions", async (req, res) => {
@@ -268,23 +256,21 @@ app.get("/all-transactions", async (req, res) => {
   try {
     const { token, filterBy } = req.body;
 
-    if(!["Network", "Date", undefined, null].includes(filterBy) ){
-
-      return res.status(400).json({msg: "Invalid Filter Parameter"})
-
+    if (!["Network", "Date", undefined, null].includes(filterBy)) {
+      return res.status(400).json({ msg: "Invalid Filter Parameter" });
     }
     const [_, sub, __] = await db.api.auth.verifyToken(token);
     const username = await db.api.auth.getUsernameOfUserId(sub);
     // TODO// TODO// TODO// TODO
     const transactions =
       await db.api.transaction.getTransactionsOfUserWithStatistics({
-        username, filterBy
+        username,
+        filterBy,
       });
 
     res.status(200).json({ transactions });
   } catch (err) {}
 });
-
 
 app.get("/view-transaction", async (req, res) => {
   console.log(`Server [GET /view-transaction]`);
@@ -311,6 +297,5 @@ app.get("/view-transaction", async (req, res) => {
     res.sendStatus(500);
   }
 });
-
 
 export default app;
