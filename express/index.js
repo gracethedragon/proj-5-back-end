@@ -19,7 +19,7 @@ app.use(express.json());
 
 app.get("/is-server-online", (_, res) => res.sendStatus(200));
 
-app.post("/register-user", async (req, res) => {
+app.post("/register", async (req, res) => {
   const { username, password: plainPassword, password2 } = req.body;
   const [id, msg] = await db.api.auth.registerUser({
     username,
@@ -34,18 +34,18 @@ app.post("/register-user", async (req, res) => {
   res.status(404).json({ msg });
 });
 
-app.get("/login-user", async (req, res) => {
-  console.log(`[GET /login-user]`);
+app.get("/login", async (req, res) => {
+  console.log(`[GET /login]`);
   const { username, password } = req.body;
   const data = await db.api.auth.getAuthToken({
     username,
     password,
   });
   console.log(data);
-  const { authToken, msg } = data;
+  const { authToken, msg, username: usernameInDb } = data;
 
   if (authToken) {
-    return res.status(200).json({ token: authToken });
+    return res.status(200).json({ token: authToken, username: usernameInDb });
   }
 
   res.status(404).json({ msg });
@@ -142,67 +142,113 @@ const getStats = (transactions, priceChecker) => {
   };
 };
 
+const getHashData = async (transactionHash) => {
+  const txData = await axios.get(
+    `https://api.blockchair.com/ethereum/dashboards/transaction/${transactionHash}`
+  );
+
+  const details = txData.data.data[transactionHash].transaction;
+  const { value_usd: valueUSD, time: date, value: qtyStr } = details;
+  const qty = Number(qtyStr) / 1000000000000000000;
+  const network = "ETH";
+
+  return { valueUSD, value: qty, date, network, transactionHash };
+};
+
+const transactionDvToFrondEnd = (transactionDv) => {
+  console.log("txdvfe");
+  console.log(transactionDv);
+  const {
+    transactionHash: hash,
+    value,
+    network,
+    type: transactionType,
+    date,
+    id,
+    valueUSD,
+  } = transactionDv;
+
+  return {
+    hash,
+    qty: value,
+    id,
+    network,
+    transactionType,
+    txValue: { date, value: valueUSD },
+  };
+};
+
+const transactionDvsToFrondEnd = (transactionDvs, priceChecker) => {
+  return transactionDvs.map((dv) => {
+    const base = transactionDvToFrondEnd(dv);
+    const currentValue = priceChecker[base.network];
+
+    return { ...base, currentValue };
+  });
+};
+
+const getView = async (transactionDvs) => {
+  const priceChecker = await CurrentPriceChecker();
+
+  const transactions = transactionDvsToFrondEnd(transactionDvs, priceChecker);
+  const stats = getStats(transactions, priceChecker);
+
+  return { stats, transactions };
+};
 app.post("/track-transaction", async (req, res) => {
   console.log(`[POST /track-transaction]`);
   const { authToken, transactionType: type, transactionHash } = req.body;
 
   try {
     const [_, sub, __] = await db.api.auth.verifyToken(authToken);
-
-    const txData = await axios.get(
-      `https://api.blockchair.com/ethereum/dashboards/transaction/${transactionHash}`
-    );
-
-    const details = txData.data.data[transactionHash].transaction;
-    const { value_usd, time, value: qtyStr } = details;
-
-    const qty = Number(qtyStr) / 1000000000000000000;
     const username = await db.api.auth.getUsernameOfUserId(sub);
-    const trackedTransaction = await db.api.transaction.record({
+
+    const hashData = await getHashData(transactionHash);
+
+    const tx = {
       tracker: username,
       type,
-      valueUSD: value_usd,
-      value: qty,
-      date: time,
-      transactionHash,
-      qty,
-      network: "ETH",
-    });
+      ...hashData,
+    };
+
+    const trackedTransaction = await db.api.transaction.record(tx);
 
     ///
 
     const { dataValues } = trackedTransaction;
 
-    const {
-      transactionHash: hash,
-      value,
-      network,
-      type: transactionType,
-      date,
-      valueUSD,
-    } = dataValues;
+    const view = await getView([dataValues]);
 
-    console.log(`qty ${qty}`);
-
-    const priceChecker = await CurrentPriceChecker();
-
-    const currentValue = priceChecker["ETH"];
-    const txToSend = {
-      hash,
-      qty: value,
-      network,
-      transactionType,
-      txValue: { date, value: valueUSD },
-      currentValue,
-    };
-    const transactions = [txToSend];
-
-    const stats = getStats(transactions, priceChecker);
-
-    return res.status(200).json({ transactions, stats });
+    return res.status(200).json(view);
   } catch (err) {
     console.log(err);
     res.status(400).json(err);
+  }
+});
+
+app.get("/view-transaction", async (req, res) => {
+  console.log(`Server [GET /view-transaction]`);
+  const { authToken, dbtransactionId } = req.body;
+
+  const [_, sub, __] = await db.api.auth.verifyToken(authToken);
+  const username = await db.api.auth.getUsernameOfUserId(sub);
+
+  if (!username) {
+    return res.sendStatus(401);
+  }
+
+  try {
+    const trackedTransaction = await db.api.transaction.getTransactionById(
+      dbtransactionId
+    );
+
+    const { dataValues } = trackedTransaction;
+
+    const view = await getView([dataValues]);
+
+    return res.status(200).json(view);
+  } catch (err) {
+    res.sendStatus(500);
   }
 });
 

@@ -32,25 +32,25 @@ const newAuthToken = (payload) => {
   return token;
 };
 
-/**
- *
- * @returns {[boolean,string]} return verification status and subject if verified
- */
-const verifyToken = (authToken) => {
-  return new Promise((resolve, reject) => {
-    jwt.verify(authToken, JWT_SECRET, (err, decoded) => {
-      if (err) {
-        resolve([false, null, err]);
-      } else {
-        resolve([true, decoded.sub, null]);
-      }
-    });
-  });
-};
-
 // ------
 
 const attachAuthApi = (User) => {
+  /**
+   *  Hi
+   * @returns {Promise<[boolean,string,Error]>} return verification status and subject if verified
+   */
+  const verifyToken = (authToken) => {
+    return new Promise((resolve, reject) => {
+      jwt.verify(authToken, JWT_SECRET, (err, decoded) => {
+        if (err) {
+          resolve([false, null, err]);
+        } else {
+          resolve([true, decoded.sub, null]);
+        }
+      });
+    });
+  };
+
   const createUser = async (username, plainPassword) => {
     const user = await User.create({
       username,
@@ -125,6 +125,7 @@ const attachAuthApi = (User) => {
     const passwordDatabaseHashed = details.getDataValue("password");
 
     const userId = details.getDataValue("id");
+    const usernameInDb = details.getDataValue("username");
     const isMatch = passwordReceivedHashed === passwordDatabaseHashed;
 
     if (!isMatch) {
@@ -135,7 +136,7 @@ const attachAuthApi = (User) => {
     }
 
     const authToken = newAuthToken({ sub: userId });
-    return { authToken, msg: "ok" };
+    return { authToken, msg: "ok", username: usernameInDb };
   };
   const isVerifiedToken = async (authToken) => {
     const [is, sub] = await verifyToken(authToken);
@@ -258,9 +259,15 @@ const attachedTransactionApi = (
     return await Promise.all(processed);
   };
 
+  const getTransactionById = async (id) =>
+    await TrackedTransaction.findOne({
+      where: { id },
+    });
+
   return {
     record,
     getTransactionsOfUserWithStatistics,
+    getTransactionById,
   };
 };
 

@@ -9,11 +9,10 @@ const password = "tss";
 
 const getAuthTokenResponse = async () => {
   const res = await request(app)
-    .get("/login-user")
+    .get("/login")
     .set("Accept", "application/json")
     .send({ username, password });
 
-  console.log(res.body);
   return res;
 };
 
@@ -29,7 +28,7 @@ describe("GET /is-server-online", () => {
 describe("User Story 1+ ", async () => {
   it("should register user", async () => {
     const res = await request(app)
-      .post("/register-user")
+      .post("/register")
       .set("Accept", "application/json")
       .send({ username, password, password2: password });
 
@@ -50,11 +49,16 @@ describe("User Story 1+ ", async () => {
 });
 
 describe("some", async () => {
-  it("Should be able to record a transaction ", async () => {
+  it("[001]Should be able to record a transaction ", async () => {
+    // Login
+
     const _res = await getAuthTokenResponse();
     const authToken = _res.body.token;
+    const usernameReceived = _res.body.username;
     assert(!!authToken);
+    assert(usernameReceived, username);
 
+    // Malformed Request
     const resOfMalformedRequest = await request(app)
       .post("/track-transaction")
       .set("Accept", "application/json")
@@ -87,13 +91,11 @@ describe("some", async () => {
         transactionHash:
           "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
       });
-    console.log(resOfTransaction_Buy.body);
 
-    (() => {
+    await (async () => {
       assert.strictEqual(200, resOfTransaction_Buy.status);
       assert.notStrictEqual(null, resOfTransaction_Buy.body.transactions);
       assert.notStrictEqual(undefined, resOfTransaction_Buy.body.transactions);
-
       const { transactions } = resOfTransaction_Buy.body;
 
       assert(Array.isArray(transactions));
@@ -101,6 +103,21 @@ describe("some", async () => {
       assert.strictEqual(1, transactions.length);
 
       const transaction = transactions[0];
+      console.log(" -----[001] checkpoint 1 ");
+
+      assert(!!transaction.id);
+
+      const resOfTransaction_ViewBuy = await request(app)
+        .get("/view-transaction")
+        .set("Accept", "application/json")
+        .send({
+          authToken,
+          dbtransactionId: transaction.id,
+        });
+      console.log(" -----[001] checkpoint 2 ");
+
+      assert.strictEqual(200, resOfTransaction_ViewBuy.status);
+
       assert.strictEqual(
         "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
         transaction.hash
