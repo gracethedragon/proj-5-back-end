@@ -97,8 +97,8 @@ export const getStats = (transactions, priceChecker) => {
     outlay,
     unrealrev,
     saleoutlay,
-    unrealgl:unrealrev=== 0? unrealrev: (unrealrev - outlay) / unrealrev,
-    realgl: actualrev === 0? actualrev: (actualrev - saleoutlay) / actualrev,
+    unrealgl: unrealrev === 0 ? unrealrev : (unrealrev - outlay) / unrealrev,
+    realgl: actualrev === 0 ? actualrev : (actualrev - saleoutlay) / actualrev,
     actualrev,
   };
 };

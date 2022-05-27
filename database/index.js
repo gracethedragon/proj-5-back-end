@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { systemConfig } from "../config/index.js";
 import jwt from "jsonwebtoken";
 import axios from "axios";
+import { Op } from "sequelize";
 
 // HELPERS
 const hashPassword = (plain) =>
@@ -212,6 +213,7 @@ const getOutlayAndAssetPrice = async (transaction, production) => {
 
 const attachedTransactionApi = (
   { User, TrackedTransaction },
+  sequelize,
   { production }
 ) => {
   const record = async ({
@@ -235,15 +237,46 @@ const attachedTransactionApi = (
     });
   };
 
-  const getTransactionsOfUser = async ({ username }, production = false) => {
+  const TransactionFilterColumns = {
+    network: "Network",
+    date: "Date",
+  };
+
+  const getTxOfUserWithFilterFn = (username, column, params) => {
+    if (!column) {
+      return async () =>
+        await TrackedTransaction.findAll({
+          where: { tracker: username },
+        });
+    } else if (column === TransactionFilterColumns.network) {
+      const networks = params;
+      return async () =>
+        await TrackedTransaction.findAll({
+          where: { tracker: username, network: { [Op.in]: networks } },
+        });
+    } else if (column === TransactionFilterColumns.date) {
+      const [from, to] = params;
+      return async () =>
+        await TrackedTransaction.findAll({
+          where: { tracker: username, date: { [Op.between]: [from, to] } },
+        });
+    }
+  };
+  const getTransactionsOfUser = async (
+    { username, filterBy = {} },
+    production = false
+  ) => {
     console.log(
       `[getTransactionsOfUser] for username ${username} production ${production}`
     );
 
-    const txs = await TrackedTransaction.findAll({
-      where: { tracker: username },
-    });
+    const { column, params } = filterBy;
+    if (!["Network", "Date", undefined, null].includes(column)) {
+      throw new Error("Invalid Filter Parameter");
+    }
 
+    const txsFn = getTxOfUserWithFilterFn(username, column, params);
+    const txs = await txsFn();
     const dvs = txs.map(({ dataValues }) => dataValues);
 
     return dvs;
@@ -276,6 +309,7 @@ export const initDatabase = (sequelize, production = false) => {
   const auth = attachAuthApi(user);
   const transaction = attachedTransactionApi(
     { User: user, TrackedTransaction: trackedTransaction },
+    sequelize,
     { production }
   );
 

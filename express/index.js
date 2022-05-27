@@ -11,6 +11,7 @@ import "../typings/typings.js";
 
 const { ENVIRONMENT } = systemConfig;
 const sequelize = connectSequelize(ENVIRONMENT, dbConfig);
+
 const db = initDatabase(sequelize);
 
 await db.wipe();
@@ -65,23 +66,30 @@ const mw = {
       try {
         const { token, filterBy } = req.body;
 
-        // We enforce here instead of in the api
-        if (!["Network", "Date", undefined, null].includes(filterBy)) {
-          return res.status(400).json({ msg: "Invalid Filter Parameter" });
-        }
         const [_, sub, __] = await db.api.auth.verifyToken(token);
         const username = await db.api.auth.getUsernameOfUserId(sub);
-        const transactions = await db.api.transaction.getTransactionsOfUser({
-          username,
-          filterBy,
-        });
 
-        console.log(`[get /all-transactions] transactions of Users`);
+        try {
+          const transactions = await db.api.transaction.getTransactionsOfUser({
+            username,
+            filterBy,
+          });
 
-        console.log(transactions);
+          console.log(
+            `[get /all-transactions] transactions of Users Retrieved`
+          );
 
-        const view = await getView(transactions);
-        res.status(200).json(view);
+          console.log(transactions);
+
+          const view = await getView(transactions);
+          return res.status(200).json(view);
+        } catch (err) {
+          console.log(
+            `[get /all-transactions] transactions of Users Retrieval Error`
+          );
+          console.log(err);
+          return res.status(400).json({ msg: err });
+        }
       } catch (err) {
         console.log(err);
 

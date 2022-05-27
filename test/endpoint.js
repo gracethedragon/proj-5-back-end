@@ -84,7 +84,7 @@ describe("some", async () => {
 
     // Record 3 transactions - START
     assert.strictEqual(400, resOfMalformedRequest.status);
-    const resOfTransaction_Transfer = await request(app)
+    const resOfTransaction_Buy1 = await request(app)
       .post("/track-transaction")
       .set("Accept", "application/json")
       .send({
@@ -94,7 +94,7 @@ describe("some", async () => {
           "0x69fc14a5f3bd93253a4446e7fb70ded1b25ab1f7fdb525b8180ef944f9b56c73",
       });
 
-    const resOfTransaction_Buy = await request(app)
+    const resOfTransaction_Buy2 = await request(app)
       .post("/track-transaction")
       .set("Accept", "application/json")
       .send({
@@ -114,20 +114,19 @@ describe("some", async () => {
           "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
       });
 
-    assert.strictEqual(200, resOfTransaction_Transfer.status);
-    assert.strictEqual(200, resOfTransaction_Buy.status);
+    assert.strictEqual(200, resOfTransaction_Buy1.status);
+    assert.strictEqual(200, resOfTransaction_Buy2.status);
     assert.strictEqual(200, resOfTransaction_Sell.status);
     // Record 3 transactions - END
 
     await (async () => {
-      assert.notStrictEqual(null, resOfTransaction_Buy.body.transactions);
-      assert.notStrictEqual(undefined, resOfTransaction_Buy.body.transactions);
-      const { transactions } = resOfTransaction_Buy.body;
+      assert.notStrictEqual(null, resOfTransaction_Buy2.body.transactions);
+      assert.notStrictEqual(undefined, resOfTransaction_Buy2.body.transactions);
+      const { transactions } = resOfTransaction_Buy2.body;
 
       assert(Array.isArray(transactions));
 
       assert.strictEqual(1, transactions.length);
-
 
       /** @type {TransactionFE} */
       const transaction = transactions[0];
@@ -152,8 +151,8 @@ describe("some", async () => {
         "0x607e05812d36d29dde45585da542bbe546596f1a342d814e5496f8f951d8b59a",
         transaction.hash
       );
-      console.log("123124125151256")
-      console.log(transaction)
+      console.log("123124125151256");
+      console.log(transaction);
       assert.strictEqual(80, transaction.qty);
 
       assert.strictEqual("ETH", transaction.network);
@@ -171,7 +170,7 @@ describe("some", async () => {
 
       console.log(currentValue);
 
-      const { stats } = resOfTransaction_Buy.body;
+      const { stats } = resOfTransaction_Buy2.body;
 
       assert.notStrictEqual(null, stats);
       assert.notStrictEqual(undefined, stats);
@@ -196,13 +195,11 @@ describe("some", async () => {
       assert.strictEqual(3, transactions.length);
 
       const transactionBuyIdFromTrackedTransaction =
-        resOfTransaction_Buy.body.transactions[0].id;
-      const buyTransactionIdReceivedFromGetAllTransactions =
-        transactions.filter(
-          ({ id }) => id === transactionBuyIdFromTrackedTransaction
-        )[0].id;
+        resOfTransaction_Buy1.body.transactions[0].id;
+      const firstTransactionIdReceivedFromGetAllTransactions =
+        transactions[0].id;
       assert.strictEqual(
-        buyTransactionIdReceivedFromGetAllTransactions,
+        firstTransactionIdReceivedFromGetAllTransactions,
         transactionBuyIdFromTrackedTransaction
       );
 
@@ -211,7 +208,7 @@ describe("some", async () => {
         .set("Accept", "application/json")
         .send({
           token,
-          dbtransactionId: buyTransactionIdReceivedFromGetAllTransactions,
+          dbtransactionId: firstTransactionIdReceivedFromGetAllTransactions,
         });
       assert.strictEqual(200, viewBuyTransactionResponse.status);
       const deleteBuyTransactionResponse = await request(app)
@@ -219,23 +216,94 @@ describe("some", async () => {
         .set("Accept", "application/json")
         .send({
           token,
-          dbtransactionId: buyTransactionIdReceivedFromGetAllTransactions,
+          dbtransactionId: firstTransactionIdReceivedFromGetAllTransactions,
         });
 
       assert.strictEqual(200, deleteBuyTransactionResponse.status);
-
-      const allTxCountAfterDeleteOne = (
-        await httpGetAllTransactions(app, token)
-      ).body.transactions.length;
-
-      assert.strictEqual(2, allTxCountAfterDeleteOne);
     })();
 
-    /** TODO
-     */
+    const allTxCountAfterDeleteOne = (await httpGetAllTransactions(app, token))
+      .body.transactions.length;
+
+    assert.strictEqual(2, allTxCountAfterDeleteOne);
 
     await (async () => {
-      console.info("TODO - verify statistics");
+      const allTransactionsFilterByNetworkETH = await request(app)
+        .get("/all-transactions")
+        .set("Accept", "application/json")
+        .send({
+          token,
+          filterBy: {
+            column: "Network",
+            params: ["ETH"],
+          },
+        });
+
+      assert.strictEqual(200, allTransactionsFilterByNetworkETH.status);
+      assert.strictEqual(
+        2,
+        allTransactionsFilterByNetworkETH.body.transactions.length
+      );
+
+      const allTransactionsFilterByNetworkBTC = await request(app)
+        .get("/all-transactions")
+        .set("Accept", "application/json")
+        .send({
+          token,
+          filterBy: {
+            column: "Network",
+            params: ["BTC"],
+          },
+        });
+
+      assert.strictEqual(200, allTransactionsFilterByNetworkBTC.status);
+      assert.strictEqual(
+        0,
+        allTransactionsFilterByNetworkBTC.body.transactions.length
+      );
+
+      const allTransactionsFilterByNetworkBTCAndETH = await request(app)
+        .get("/all-transactions")
+        .set("Accept", "application/json")
+        .send({
+          token,
+          filterBy: {
+            column: "Network",
+            params: ["BTC", "ETH"],
+          },
+        });
+
+      assert.strictEqual(200, allTransactionsFilterByNetworkBTCAndETH.status);
+      assert.strictEqual(
+        2,
+        allTransactionsFilterByNetworkBTCAndETH.body.transactions.length
+      );
+    })();
+
+    await (async () => {
+      const ranges = [
+        ["2022-05-18", "2022-05-20", 2],
+        ["2022-05-18", "2022-05-19", 1],
+        ["2022-05-19", "2022-05-20", 1],
+      ];
+      for await (const [from, to, expectedCount] of ranges) {
+        const allTransactionsFilterByDate = await request(app)
+          .get("/all-transactions")
+          .set("Accept", "application/json")
+          .send({
+            token,
+            filterBy: {
+              column: "Date",
+              params: [from, to],
+            },
+          });
+
+        assert.strictEqual(200, allTransactionsFilterByDate.status);
+        assert.strictEqual(
+          expectedCount,
+          allTransactionsFilterByDate.body.transactions.length
+        );
+      }
     })();
 
     await (async () => {})();

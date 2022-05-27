@@ -37,7 +37,7 @@ module.exports = {
         allowNull: false,
       },
       network: {
-        type: DataTypes.ENUM(["ETH"]),
+        type: DataTypes.ENUM(["ETH", "BTC"]),
         allowNull: false,
       },
       date: {
