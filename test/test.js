@@ -134,7 +134,7 @@ describe("some", async () => {
       assert(!!transaction.id);
 
       const resOfTransaction_ViewBuy = await request(app)
-        .get("/view-transaction")
+        .get("/get-transaction")
         .set("Accept", "application/json")
         .send({
           token,
@@ -205,7 +205,7 @@ describe("some", async () => {
       );
 
       const viewBuyTransactionResponse = await request(app)
-        .get("/view-transaction")
+        .get("/get-transaction")
         .set("Accept", "application/json")
         .send({
           token,

@@ -298,22 +298,77 @@ app.post("/add-view", (req) => {
   // { token, transactionIds}
 });
 
-app.delete("/view", (req) => {
-  // { token, transactionId}
+app.delete("/view", async (req, res) => {
+  
+  console.log(`Server [DELETE /view]`);
+  console.log(req.body);
+  const { token, dbtransactionId } = req.body;
+
+  const [_, sub, __] = await db.api.auth.verifyToken(token);
+
+  if (!sub) {
+    return res.sendStatus(401);
+  }
+
+  const username = await db.api.auth.getUsernameOfUserId(sub);
+
+  // try {
+  //   const removedTransactionCount =
+  //     await db.api.transaction.deleteTransactionById(dbtransactionId, username);
+
+  //   if (removedTransactionCount === 1) {
+  //     return res.sendStatus(200);
+  //   }
+  //   if (removedTransactionCount === 0) {
+  //     return res.sendStatus(404);
+  //   }
+  //   throw new Error("Server route should only delete at most 1 entry.");
+  // } catch (err) {
+  //   console.log(err);
+  //   res.sendStatus(500);
+  // }
 });
+
+app.post("/new-view", (req, res)=>{
+  const {token, transactionIds} = req.body
+  const is = false
+  if (is) {
+    res.sendStatus(200)
+  } else {
+    res.sendStatus(400)
+  }
+})
+
+app.get("/all-views", (req,res)=>{
+  const {token} = req.query
+  const view = {id: -1, viewname :'default', createdDate :new Date()}
+  res.status(200).json({views:[view]})
+})
+
+//return TransactionView
+app.get("/get-view", (req,res)=>{
+  const {token, viewId} = req.query
+  res.status(200).json({})
+})
 
 // TODO
 app.get("/all-transactions", async (req, res) => {
   console.log(`[get /all-transactions]`);
 
   try {
-    const { token, filterBy } = req.body;
+    
+    const { token, filterBy={} } = req.query;  
+    const {column, parameters} = filterBy
+    // date is a range, network can be > 1
 
     // We enforce here instead of in the api
-    if (!["Network", "Date", undefined, null].includes(filterBy)) {
-      return res.status(400).json({ msg: "Invalid Filter Parameter" });
+    if (!["Network", "Date", undefined, null].includes(column)) {
+      return res.status(400).json({ msg: "Invalid Filter Column" });
     }
     const [_, sub, __] = await db.api.auth.verifyToken(token);
+    if (!sub) {
+      return res.sendStatus(401)
+    }
     const username = await db.api.auth.getUsernameOfUserId(sub);
     const transactions = await db.api.transaction.getTransactionsOfUser({
       username,
@@ -333,10 +388,10 @@ app.get("/all-transactions", async (req, res) => {
   }
 });
 
-app.get("/view-transaction", async (req, res) => {
-  console.log(`Server [GET /view-transaction]`);
+app.get("/get-transaction", async (req, res) => {
+  console.log(`Server [GET /get-transaction]`);
   console.log(req.body);
-  const { token, dbtransactionId } = req.body;
+  const { token, dbtransactionId } = req.query;
 
   const [_, sub, __] = await db.api.auth.verifyToken(token);
 
@@ -372,7 +427,7 @@ app.delete("/transaction", async (req, res) => {
   // TODO MUST DELETE FROM VIEW ALSO
   console.log(`Server [DELETE /transaction]`);
   console.log(req.body);
-  const { token, dbtransactionId } = req.body;
+  const { token, dbtransactionId } = req.query;
 
   const [_, sub, __] = await db.api.auth.verifyToken(token);
 

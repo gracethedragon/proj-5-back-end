@@ -36,5 +36,8 @@
     "sequelize": "^6.19.2",
     "sequelize-cli": "^6.4.1",
     "supertest": "^6.2.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.2"
   }
 }

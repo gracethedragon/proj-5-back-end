@@ -141,7 +141,7 @@ txdvfe
 ---0.4654215764981705
 { ETH: { value: 0.930843152996341, date: '2022-05-26T04:42:15.431Z' } }
  -----[001] checkpoint 1 
-Server [GET /view-transaction]
+Server [GET /get-transaction]
 Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "username", "password" FROM "users" AS "user" WHERE "user"."id" = 113;
 Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "tracker", "value", "network", "valueUSD", "date", "type", "transaction_hash" AS "transactionHash" FROM "tracked_transactions" AS "trackedTransaction" WHERE "trackedTransaction"."id" = 97;
 txdvfe
