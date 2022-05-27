@@ -1,10 +1,5 @@
 import assert from "assert";
 
-
-
-
 describe("Statistics", () => {
-  it("Three buy transactions", (done) => {
-
-  });
+  it("Three buy transactions", (done) => {});
 });

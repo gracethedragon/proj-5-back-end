@@ -6,7 +6,7 @@
   "scripts": {
     "start-dev": "node index.js",
     "start": "npm run start-dev",
-    "test": "mocha test/test.js",
+    "test": "mocha test/index.js",
     "db:create": "sequelize db:create",
     "db:migrate": "sequelize db:migrate",
     "db:drop": "sequelize db:drop",
