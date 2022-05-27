@@ -1,4 +1,4 @@
-import { CurrentPriceChecker } from "./express/index.js";
+import { CurrentPriceChecker } from "../express/index.js";
 
 const some = await CurrentPriceChecker();
 
