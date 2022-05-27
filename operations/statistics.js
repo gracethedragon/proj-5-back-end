@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import "../typings/index.js";
+import "../typings/typings.js";
 
 const coinmarketcapSandboxConfig = {
   urls: {
