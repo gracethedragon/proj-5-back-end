@@ -74,6 +74,109 @@ const initModel_TrackedTransactions = (sequelize, DataTypes) => {
   return model;
 };
 
+const initModel_View = (sequelize, DataTypes) => {
+  const model = sequelize.define(
+    "view",
+    {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: DataTypes.INTEGER,
+        field: "id",
+      },
+      createdAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        field: "created_at",
+      },
+      updatedAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        field: "updated_at",
+      },
+      viewId: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: {
+            tableName: "view_ownerships",
+          },
+          key: "id",
+        },
+        allowNull: false,
+        field: "view_id",
+        onDelete: "CASCADE",
+      },
+      transactionId: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: {
+            tableName: "tracked_transactions",
+          },
+          key: "id",
+        },
+        allowNull: false,
+        field: "transaction_id",
+        onDelete: "CASCADE",
+      },
+    },
+    {
+      tableName: "views",
+      underscored: true,
+    }
+  );
+  return model;
+};
+
+const initModel_ViewOwnership = (sequelize, DataTypes) => {
+  const model = sequelize.define(
+    "viewOwnership",
+    {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: DataTypes.INTEGER,
+        field: "id",
+      },
+      createdAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        field: "created_at",
+      },
+      updatedAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        field: "updated_at",
+      },
+
+      name: {
+        allowNull: false,
+
+        type: DataTypes.STRING,
+
+        field: "name",
+      },
+      owner: {
+        type: DataTypes.STRING,
+        references: {
+          model: {
+            tableName: "users",
+          },
+          key: "username",
+        },
+        allowNull: false,
+        field: "owner",
+      },
+    },
+    {
+      tableName: "view_ownerships",
+      underscored: true,
+    }
+  );
+  return model;
+};
+
 const initModel_User = (sequelize, DataTypes) => {
   const model = sequelize.define(
     "user",
@@ -119,6 +222,9 @@ const initModels = (sequelize) => {
   const DataTypes = Sequelize.DataTypes;
   initModel_User(sequelize, DataTypes);
   initModel_TrackedTransactions(sequelize, DataTypes);
+  initModel_ViewOwnership(sequelize, DataTypes);
+  initModel_View(sequelize, DataTypes);
+  initModel_View(sequelize, DataTypes);
 };
 
 export default initModels;

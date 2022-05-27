@@ -24,185 +24,290 @@ app.use(express.json());
 
 app.get("/is-server-online", (_, res) => res.sendStatus(200));
 
-const mw = {
-  user: {
-    register: async (req, res) => {
-      const { username, password: plainPassword, password2 } = req.body;
-      const [id, msg] = await db.api.auth.registerUser({
-        username,
-        plainPassword,
-        password2,
-      });
-      if (id) {
-        return res.sendStatus(200);
-      }
-      res.status(404).json({ msg });
+const mw = ((db) => {
+  return {
+    user: {
+      register: async (req, res) => {
+        const { username, password: plainPassword, password2 } = req.body;
+        const [id, msg] = await db.api.auth.registerUser({
+          username,
+          plainPassword,
+          password2,
+        });
+        if (id) {
+          return res.sendStatus(200);
+        }
+        res.status(404).json({ msg });
+      },
+      login: async (req, res) => {
+        console.log(`[GET /login]`);
+        const { email, password } = req.query;
+
+        const data = await db.api.auth.getAuthToken({
+          username: email,
+          password,
+        });
+
+        const { authToken, msg, username: usernameInDb } = data;
+
+        if (authToken) {
+          return res
+            .status(200)
+            .json({ token: authToken, username: usernameInDb });
+        }
+
+        res.status(404).json({ msg });
+      },
     },
-    login: async (req, res) => {
-      console.log(`[GET /login]`);
-      const { email, password } = req.query;
 
-      const data = await db.api.auth.getAuthToken({
-        username: email,
-        password,
-      });
+    transaction: {
+      all: async (req, res) => {
+        console.log(`[get /all-transactions]`);
 
-      const { authToken, msg, username: usernameInDb } = data;
+        try {
+          const { token, filterBy } = req.body;
 
-      if (authToken) {
-        return res
-          .status(200)
-          .json({ token: authToken, username: usernameInDb });
-      }
+          const [_, sub, __] = await db.api.auth.verifyToken(token);
+          const username = await db.api.auth.getUsernameOfUserId(sub);
 
-      res.status(404).json({ msg });
-    },
-  },
+          try {
+            const transactions = await db.api.transaction.getTransactionsOfUser(
+              {
+                username,
+                filterBy,
+              }
+            );
 
-  transaction: {
-    all: async (req, res) => {
-      console.log(`[get /all-transactions]`);
+            console.log(
+              `[get /all-transactions] transactions of Users Retrieved`
+            );
 
-      try {
-        const { token, filterBy } = req.body;
+            console.log(transactions);
+
+            const view = await getView(transactions);
+            return res.status(200).json(view);
+          } catch (err) {
+            console.log(
+              `[get /all-transactions] transactions of Users Retrieval Error`
+            );
+            console.log(err);
+            return res.status(400).json({ msg: err });
+          }
+        } catch (err) {
+          console.log(err);
+
+          res.sendStatus(501);
+        }
+      },
+      delete: async (req, res) => {
+        console.log(`Server [DELETE /transaction]`);
+        console.log(req.body);
+        const { token, dbtransactionId } = req.body;
 
         const [_, sub, __] = await db.api.auth.verifyToken(token);
+
+        if (!sub) {
+          return res.sendStatus(401);
+        }
+
         const username = await db.api.auth.getUsernameOfUserId(sub);
 
         try {
-          const transactions = await db.api.transaction.getTransactionsOfUser({
-            username,
-            filterBy,
-          });
+          const removedTransactionCount =
+            await db.api.transaction.deleteTransactionById(
+              dbtransactionId,
+              username
+            );
 
-          console.log(
-            `[get /all-transactions] transactions of Users Retrieved`
+          if (removedTransactionCount === 1) {
+            return res.sendStatus(200);
+          }
+          if (removedTransactionCount === 0) {
+            return res.sendStatus(404);
+          }
+          throw new Error("Server route should only delete at most 1 entry.");
+        } catch (err) {
+          console.log(err);
+          res.sendStatus(500);
+        }
+      },
+      track: async (req, res) => {
+        console.log(`[POST /track-transaction]`);
+        const { token, transactionType: type, transactionHash } = req.body;
+        try {
+          const [_, sub, __] = await db.api.auth.verifyToken(token);
+          /** @type {Tracker} */
+          const username = await db.api.auth.getUsernameOfUserId(sub);
+
+          const hashData = await getHashData(transactionHash);
+
+          const transactionToSubmit = {
+            tracker: username,
+            type,
+            ...hashData,
+          };
+
+          const trackedTransaction = await db.api.transaction.record(
+            transactionToSubmit
           );
 
+          /** @type {TransactionDBColumns} */
+          const dataValues = trackedTransaction.dataValues;
+
+          const view = await getView([dataValues]);
+          return res.status(200).json(view);
+        } catch (err) {
+          res.status(400).json(err);
+        }
+      },
+      get_: async (req, res) => {
+        console.log(`Server [GET /get-transaction]`);
+        console.log(req.body);
+        const { token, dbtransactionId } = req.body;
+        const [_, sub, __] = await db.api.auth.verifyToken(token);
+        if (!sub) {
+          return res.sendStatus(401);
+        }
+        const username = await db.api.auth.getUsernameOfUserId(sub);
+
+        try {
+          const trackedTransaction =
+            await db.api.transaction.getTransactionById(dbtransactionId);
+
+          const { dataValues } = trackedTransaction;
+
+          if (username !== dataValues.tracker) {
+            return res
+              .status(403)
+              .json({ msg: "Requestor is not tracker of transaction." });
+          }
+
+          const view = await getView([dataValues]);
+
+          return res.status(200).json(view);
+        } catch (err) {
+          res.sendStatus(500);
+        }
+      },
+    },
+
+    general: {
+      unimplemented: async (req, res) => res.sendStatus(501),
+    },
+
+    view: {
+      get_: async (req, res) => {
+        const { token, viewId } = req.body;
+        const [_, sub, __] = await db.api.auth.verifyToken(token);
+        if (!sub) {
+          return res.sendStatus(401);
+        }
+
+        // TODO Security Check: Only view owner can retrieve view
+
+        try {
+          const transactionIds = await db.api.view.getTransactionIdsOfView({
+            viewId,
+          });
+
+          console.log(`[GET /get-view] transactionIds`);
+
+          console.log(transactionIds);
+
+          const transactions = await db.api.transaction.getTransactionsByIds({
+            transactionIds,
+          });
           console.log(transactions);
 
           const view = await getView(transactions);
+
           return res.status(200).json(view);
         } catch (err) {
-          console.log(
-            `[get /all-transactions] transactions of Users Retrieval Error`
-          );
-          console.log(err);
-          return res.status(400).json({ msg: err });
+          return res.sendStatus(501);
         }
-      } catch (err) {
-        console.log(err);
-
-        res.sendStatus(501);
-      }
-    },
-    delete: async (req, res) => {
-      // TODO MUST DELETE FROM VIEW ALSO
-      console.log(`Server [DELETE /transaction]`);
-      console.log(req.body);
-      const { token, dbtransactionId } = req.body;
-
-      const [_, sub, __] = await db.api.auth.verifyToken(token);
-
-      if (!sub) {
-        return res.sendStatus(401);
-      }
-
-      const username = await db.api.auth.getUsernameOfUserId(sub);
-
-      try {
-        const removedTransactionCount =
-          await db.api.transaction.deleteTransactionById(
-            dbtransactionId,
-            username
-          );
-
-        if (removedTransactionCount === 1) {
-          return res.sendStatus(200);
-        }
-        if (removedTransactionCount === 0) {
-          return res.sendStatus(404);
-        }
-        throw new Error("Server route should only delete at most 1 entry.");
-      } catch (err) {
-        console.log(err);
-        res.sendStatus(500);
-      }
-    },
-    track: async (req, res) => {
-      console.log(`[POST /track-transaction]`);
-      const { token, transactionType: type, transactionHash } = req.body;
-      try {
+      },
+      getAll: async (req, res) => {
+        const { token } = req.body;
         const [_, sub, __] = await db.api.auth.verifyToken(token);
-        /** @type {Tracker} */
+        if (!sub) {
+          return res.sendStatus(401);
+        }
         const username = await db.api.auth.getUsernameOfUserId(sub);
 
-        const hashData = await getHashData(transactionHash);
+        try {
+          const viewsOfUser = await db.api.view.getViewList({
+            owner: username,
+          });
 
-        const transactionToSubmit = {
-          tracker: username,
-          type,
-          ...hashData,
-        };
+          console.log(`[viewsOfUser]`);
 
-        const trackedTransaction = await db.api.transaction.record(
-          transactionToSubmit
-        );
+          console.log(viewsOfUser);
 
-        /** @type {TransactionDBColumns} */
-        const dataValues = trackedTransaction.dataValues;
+          const viewFEs = viewsOfUser.map(
+            ({ id, name: viewname, createdAt: createdDate }) => {
+              return { id, viewname, createdDate };
+            }
+          );
+          res.status(200).json({ views: viewFEs });
+        } catch (err) {
+          console.log(`[GET /all-views] error`);
+          console.log(err);
+          res.sendStatus(400);
+        }
+      },
 
-        const view = await getView([dataValues]);
-        return res.status(200).json(view);
-      } catch (err) {
-        res.status(400).json(err);
-      }
-    },
-    view: async (req, res) => {
-      console.log(`Server [GET /get-transaction]`);
-      console.log(req.body);
-      const { token, dbtransactionId } = req.body;
+      delete: async (req, res) => {
+        console.log(`Server [DELETE /view]`);
+        console.log(req.body);
+        const { token, viewId } = req.body;
 
-      const [_, sub, __] = await db.api.auth.verifyToken(token);
+        const [_, sub, __] = await db.api.auth.verifyToken(token);
 
-      if (!sub) {
-        return res.sendStatus(401);
-      }
-
-      const username = await db.api.auth.getUsernameOfUserId(sub);
-
-      try {
-        const trackedTransaction = await db.api.transaction.getTransactionById(
-          dbtransactionId
-        );
-
-        const { dataValues } = trackedTransaction;
-
-        if (username !== dataValues.tracker) {
-          return res
-            .status(403)
-            .json({ msg: "Requestor is not tracker of transaction." });
+        if (!sub) {
+          return res.sendStatus(401);
         }
 
-        const view = await getView([dataValues]);
+        try {
+          const removed = await db.api.view.deleteViewById({ id: viewId });
+          if (removed === 1) {
+            return res.sendStatus(200);
+          }
+          if (removed === 0) {
+            return res.sendStatus(404);
+          }
+          throw new Error("Server route should only delete at most 1 entry.");
+        } catch (err) {
+          console.log(err);
+          res.sendStatus(500);
+        }
+      },
+      new_: async (req, res) => {
+        console.log(`[GET /new-view]`);
+        const { token, transactionIds } = req.body;
 
-        return res.status(200).json(view);
-      } catch (err) {
-        res.sendStatus(500);
-      }
+        console.log({ token, transactionIds });
+
+        const [_, sub, __] = await db.api.auth.verifyToken(token);
+        if (!sub) {
+          return res.sendStatus(401);
+        }
+        const username = await db.api.auth.getUsernameOfUserId(sub);
+
+        try {
+          const view = await db.api.view.create({ owner: username });
+
+          const { id: viewId } = view?.dataValues;
+
+          await db.api.view.addTxsToView({ viewId, transactionIds });
+
+          res.status(200).json({ id: viewId });
+        } catch (err) {
+          res.sendStatus(400);
+        }
+      },
     },
-  },
-
-  general: {
-    unimplemented: async (req, res) => res.sendStatus(501),
-  },
-
-  view: {
-    new_: async (req, res) => {
-      res.sendStatus(501);
-    },
-  },
-};
+  };
+})(db);
 
 app.post("/register", mw.user.register);
 app.get("/login", mw.user.login);
@@ -210,13 +315,14 @@ app.get("/login", mw.user.login);
 app.post("/track-transaction", mw.transaction.track);
 
 app.get("/all-transactions", mw.transaction.all);
-app.get("/get-transaction", mw.transaction.view);
+app.get("/get-transaction", mw.transaction.get_);
 
 app.delete("/transaction", mw.transaction.delete);
 
-app.post("/add-view", mw.general.unimplemented);
-app.delete("/view", mw.general.unimplemented);
+app.delete("/view", mw.view.delete);
 
 app.post("/new-view", mw.view.new_);
+app.get("/all-views", mw.view.getAll);
+app.get("/get-view", mw.view.get_);
 
 export default app;

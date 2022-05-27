@@ -335,5 +335,71 @@ describe("views", async () => {
       .send({ token, transactionIds });
 
     assert.strictEqual(200, newViewResponse.status);
-  });
-});
+
+    const { id: viewId } = newViewResponse.body;
+    assert.notStrictEqual(undefined, viewId);
+    assert.notStrictEqual(null, viewId);
+
+    const allViewsResponse = await request(app)
+      .get("/all-views")
+      .set("Accept", "application/json")
+      .send({ token });
+    assert.strictEqual(200, allViewsResponse.status);
+
+    assert.strictEqual(1, allViewsResponse.body.views.length);
+
+    console.log(allViewsResponse.body.views);
+    const firstViewIdOfUser = allViewsResponse.body.views[0].id;
+
+    assert.strictEqual(1, allViewsResponse.body.views.length);
+    assert.notStrictEqual(null, firstViewIdOfUser);
+    assert.notStrictEqual(undefined, firstViewIdOfUser);
+
+    const getFirstViewResponse = await request(app)
+      .get("/get-view")
+      .set("Accept", "application/json")
+      .send({ token, viewId: firstViewIdOfUser });
+    assert.strictEqual(200, getFirstViewResponse.status);
+    console.log(getFirstViewResponse.body);
+    assert.strictEqual(2, getFirstViewResponse.body.transactions.length);
+
+    const firstTransactionIdOfFirstView =
+      getFirstViewResponse.body.transactions[0].id;
+
+    const deleteFirstTransactionIdOfFirstView = await request(app)
+      .delete("/transaction")
+      .set("Accept", "application/json")
+
+      .send({ token, dbtransactionId: firstTransactionIdOfFirstView });
+
+    assert.strictEqual(200, deleteFirstTransactionIdOfFirstView.status);
+
+    const getFirstViewAfterDeleteTransactionInViewResponse = await request(app)
+      .get("/get-view")
+      .set("Accept", "application/json")
+      .send({ token, viewId: firstViewIdOfUser });
+    assert.strictEqual(
+      200,
+      getFirstViewAfterDeleteTransactionInViewResponse.status
+    );
+    console.log(getFirstViewAfterDeleteTransactionInViewResponse.body);
+    assert.strictEqual(
+      1,
+      getFirstViewAfterDeleteTransactionInViewResponse.body.transactions.length
+    );
+
+    const deleteFirstViewResponse = await request(app)
+      .delete("/view")
+      .set("Accept", "application/json")
+      .send({ token, viewId: firstViewIdOfUser });
+    assert.strictEqual(200, deleteFirstViewResponse.status);
+
+    const allViewsResponseAfterDeleteView = await request(app)
+      .get("/all-views")
+      .set("Accept", "application/json")
+      .send({ token });
+    assert.strictEqual(200, allViewsResponseAfterDeleteView.status);
+
+    assert.strictEqual(0, allViewsResponseAfterDeleteView.body.views.length);
+  }).timeout(0);
+}).timeout(0);

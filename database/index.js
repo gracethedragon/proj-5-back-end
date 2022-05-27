@@ -282,6 +282,20 @@ const attachedTransactionApi = (
     return dvs;
   };
 
+  const getTransactionsByIds = async ({ transactionIds }) => {
+    console.log(`[getTransactionsByIds]`);
+    console.log(transactionIds);
+
+    const txs = await TrackedTransaction.findAll({
+      where: { id: transactionIds },
+    });
+
+    console.log(txs);
+    const dvs = txs.map(({ dataValues }) => dataValues);
+
+    return dvs;
+  };
+
   const getTransactionById = async (id) =>
     await TrackedTransaction.findOne({
       where: { id },
@@ -297,14 +311,82 @@ const attachedTransactionApi = (
     getTransactionsOfUser,
     deleteTransactionById,
     getTransactionById,
+    getTransactionsByIds,
   };
 };
 
+const attachViewApi = ({ User, TrackedTransaction, View, ViewOwnership }) => {
+  const create = async ({ owner }) => {
+    console.log(`[db.ap.view.create] creating view`);
+    try {
+      const name =
+        owner + "-view-" + crypto.randomUUID().toString().slice(0, 6);
+      const result = await ViewOwnership.create({ owner, name });
+      console.log(`[db.ap.view.create] created`);
+      return result;
+    } catch (err) {
+      console.log(`[db.ap.view.create] err`);
+      return null;
+    }
+  };
+
+  const addTxsToView = async ({ viewId, transactionIds }) => {
+    try {
+      for await (const transactionId of transactionIds) {
+        const viewedTx = await View.create({ viewId, transactionId });
+        console.log(`[addTxsToView] viewedTx`);
+        console.log(viewedTx);
+      }
+
+      return true;
+    } catch (err) {
+      console.log(`[addTxsToView]`);
+      console.log(err);
+      return false;
+    }
+  };
+
+  const getViewList = async ({ owner }) => {
+    return (await ViewOwnership.findAll({ where: { owner } })).map(
+      ({ dataValues }) => dataValues
+    );
+  };
+
+  const getView = async ({ viewId }) => {
+    return (await View.findAll({ viewId })).map(({ dataValues }) => dataValues);
+  };
+
+  const getTransactionIdsOfView = async ({ viewId }) => {
+    const viewedTransactions = await getView({ viewId });
+
+    return viewedTransactions.map(({ transactionId }) => transactionId);
+  };
+
+  const deleteViewById = async ({ id }) =>
+    await ViewOwnership.destroy({ where: { id } });
+
+  return {
+    create,
+    addTxsToView,
+    getViewList,
+    getTransactionIdsOfView,
+    getView,
+    deleteViewById,
+  };
+};
 export const initDatabase = (sequelize, production = false) => {
   initModels(sequelize);
 
   const models = sequelize.models;
-  const { user, trackedTransaction } = models;
+  const { user, trackedTransaction, viewOwnership, view } = models;
+
+  if (
+    ![user, trackedTransaction, viewOwnership, view].every(
+      (model) => model !== undefined && model !== null
+    )
+  ) {
+    throw new Error("Some models not initiated");
+  }
 
   const auth = attachAuthApi(user);
   const transaction = attachedTransactionApi(
@@ -313,8 +395,15 @@ export const initDatabase = (sequelize, production = false) => {
     { production }
   );
 
+  const viewApi = attachViewApi({
+    User: user,
+    TrackedTransaction: trackedTransaction,
+    ViewOwnership: viewOwnership,
+    View: view,
+  });
+
   const wipe = async () => {
-    for await (const model of [trackedTransaction, user]) {
+    for await (const model of [view, viewOwnership, trackedTransaction, user]) {
       await model.destroy({ where: {} });
     }
   };
@@ -339,6 +428,8 @@ export const initDatabase = (sequelize, production = false) => {
     api: {
       auth,
       transaction,
+
+      view: viewApi,
     },
   };
 };
