@@ -243,12 +243,47 @@ const transactionDvsToFrondEnd = (transactionDvs, priceChecker) =>
  * @property {Array<TransactionFE>} transactions
  */
 
+
+/**
+ * @typedef {string} Username
+ */
+
+
+
+/**
+ * @typedef {string} TransactionHash
+ */
+
+
+/**
+ * @typedef {string} TransactionType asfr
+ */
+
+/**
+ * @typedef {Object} TransactionDBColumns
+ * @property {number} id
+ * @property {Date} createdAt
+ * @property {Date} updatedAt
+ * @property {Username} tracker
+ * @property {number} value
+ * @property {Date} date
+ * @property {number} valueUSD
+ * @property {TransactionHash} transactionHash
+ * @property {TransactionType} type
+ */
+
+
+
+
 /**
  *
  * @param {TransactionDBColumns} transactionDvs
  * @returns {TransactionView}
  */
 const getView = async (transactionDvs) => {
+
+  console.log(`TransactionDBColumns`)
+  console.log(transactionDvs)
   const priceChecker = await CurrentPriceChecker();
 
   const transactions = transactionDvsToFrondEnd(transactionDvs, priceChecker);
