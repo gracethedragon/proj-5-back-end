@@ -74,7 +74,6 @@ describe("Statistics", () => {
 
     assert.strictEqual(-0.1378, Number(unrealgl.toFixed(4)));
 
-    assert(false);
   });
 
   it("getStats of 2 buy transactions and 1 sell", async () => {
