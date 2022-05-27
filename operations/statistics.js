@@ -51,6 +51,7 @@ export const getStats = (transactions, priceChecker) => {
       outlay: 0,
       qtyLeft: 0,
       qtySold: 0,
+      actualrev: 0,
     },
   };
 
@@ -63,43 +64,41 @@ export const getStats = (transactions, priceChecker) => {
       coin.qtyLeft += qty;
       coin.outlay += txValue.value;
     }
+    if (transactionType === "SELL") {
+      coin.qtySold += qty;
+
+      coin.actualrev += txValue.value;
+    }
   }
 
   console.log(`---outlay`);
   console.log(Object.entries(coins));
 
   const saleoutlay = Object.entries(coins).reduce(
-    (sum, [network, { outlay, qtyLeft, qtySold }]) => {
+    (sum, [_, { qtySold, qtyLeft, outlay }]) => {
       const avgBuyPrice = outlay / qtyLeft;
-
-      console.log(`calcing avg buy ${network}`);
-      console.log(avgBuyPrice);
-
-      return (sum += avgBuyPrice * qtySold);
+      return sum + avgBuyPrice * qtySold;
     },
     0
   );
 
   const outlay = Object.entries(coins).reduce((sum, [_, { outlay }]) => {
-    console.log("coin");
     return outlay + sum;
   }, 0);
 
   const unrealrev = Object.entries(coins).reduce((unr, [coin, { qtyLeft }]) => {
     return (unr += priceChecker[coin].value * qtyLeft);
   }, 0);
+  const actualrev = Object.entries(coins).reduce((s, [coin, { actualrev }]) => {
+    return s + actualrev;
+  }, 0);
 
-  const actualrev = 0;
-  const realgl = 0;
-  console.log(`---unrealrev`);
-  console.log(`---${unrealrev}`);
-  console.log(priceChecker);
   return {
     outlay,
     unrealrev,
     saleoutlay,
     unrealgl: (unrealrev - outlay) / unrealrev,
-    realgl,
+    realgl: (actualrev - saleoutlay) / actualrev,
     actualrev,
   };
 };
