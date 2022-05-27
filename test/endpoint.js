@@ -16,6 +16,11 @@ const gettokenResponse = async () => {
   return res;
 };
 
+const getToken = async () => {
+  const res = await gettokenResponse();
+  return res.body.token;
+};
+
 const httpGetAllTransactions = async (app, token) =>
   await request(app)
     .get("/all-transactions")
@@ -61,7 +66,7 @@ describe("User Story 1+ ", async () => {
   });
 });
 
-describe("some", async () => {
+describe("transactions", async () => {
   it("[001]Should be able to record a transaction ", async () => {
     // Login
 
@@ -135,7 +140,7 @@ describe("some", async () => {
       assert(!!transaction.id);
 
       const resOfTransaction_ViewBuy = await request(app)
-        .get("/view-transaction")
+        .get("/get-transaction")
         .set("Accept", "application/json")
         .send({
           token,
@@ -204,7 +209,7 @@ describe("some", async () => {
       );
 
       const viewBuyTransactionResponse = await request(app)
-        .get("/view-transaction")
+        .get("/get-transaction")
         .set("Accept", "application/json")
         .send({
           token,
@@ -308,4 +313,27 @@ describe("some", async () => {
 
     await (async () => {})();
   }).timeout(0);
+});
+
+describe("views", async () => {
+  it("should register new view (return 200)", async () => {
+    const token = await getToken();
+    const allTransactions = await request(app)
+      .get("/all-transactions")
+      .set("Accept", "application/json")
+      .send({ token });
+
+    assert.strictEqual(200, allTransactions.status);
+    const transactionIds = allTransactions.body.transactions.map(
+      ({ id }) => id
+    );
+    assert.strictEqual(2, transactionIds.length);
+
+    const newViewResponse = await request(app)
+      .post("/new-view")
+      .set("Accept", "application/json")
+      .send({ token, transactionIds });
+
+    assert.strictEqual(200, newViewResponse.status);
+  });
 });

@@ -159,7 +159,7 @@ const mw = {
       }
     },
     view: async (req, res) => {
-      console.log(`Server [GET /view-transaction]`);
+      console.log(`Server [GET /get-transaction]`);
       console.log(req.body);
       const { token, dbtransactionId } = req.body;
 
@@ -196,6 +196,12 @@ const mw = {
   general: {
     unimplemented: async (req, res) => res.sendStatus(501),
   },
+
+  view: {
+    new_: async (req, res) => {
+      res.sendStatus(501);
+    },
+  },
 };
 
 app.post("/register", mw.user.register);
@@ -204,11 +210,13 @@ app.get("/login", mw.user.login);
 app.post("/track-transaction", mw.transaction.track);
 
 app.get("/all-transactions", mw.transaction.all);
-app.get("/view-transaction", mw.transaction.view);
+app.get("/get-transaction", mw.transaction.view);
 
 app.delete("/transaction", mw.transaction.delete);
 
 app.post("/add-view", mw.general.unimplemented);
 app.delete("/view", mw.general.unimplemented);
+
+app.post("/new-view", mw.view.new_);
 
 export default app;
