@@ -2,6 +2,7 @@ import axios from "axios";
 
 import "../typings/typings.js";
 
+// Config
 const coinmarketcapSandboxConfig = {
   urls: {
     prices:
@@ -19,7 +20,6 @@ const coinmarketcapDvlpConfig = {
 const coinmarketConfig = coinmarketcapSandboxConfig;
 
 /**
- *
  * @returns {Promise<PriceChecker>}
  */
 export const CurrentPriceChecker = async () => {
@@ -45,10 +45,10 @@ export const CurrentPriceChecker = async () => {
  * @param {PriceChecker} priceChecker
  * @returns
  */
-const getStats = (transactions, priceChecker) => {
+export const getStats = (transactions, priceChecker) => {
   const coins = {
     ETH: {
-      avgBuyPrice: 0,
+      outlay: 0,
       qtyLeft: 0,
       qtySold: 0,
     },
@@ -61,25 +61,29 @@ const getStats = (transactions, priceChecker) => {
 
     if (transactionType === "BUY") {
       coin.qtyLeft += qty;
-      coin.avgBuyPrice += (txValue.value - coin.avgBuyPrice) / coin.qtyLeft;
+      coin.outlay += txValue.value;
     }
   }
+
   console.log(`---outlay`);
   console.log(Object.entries(coins));
 
   const saleoutlay = Object.entries(coins).reduce(
-    (outlay, [coin, { avgBuyPrice, qtySold }]) => {
-      return (outlay += avgBuyPrice * qtySold);
+    (sum, [network, { outlay, qtyLeft, qtySold }]) => {
+      const avgBuyPrice = outlay / qtyLeft;
+
+      console.log(`calcing avg buy ${network}`);
+      console.log(avgBuyPrice);
+
+      return (sum += avgBuyPrice * qtySold);
     },
     0
   );
 
-  const outlay = Object.entries(coins).reduce(
-    (outlay, [coin, { avgBuyPrice, qtyLeft }]) => {
-      return (outlay += avgBuyPrice * qtyLeft);
-    },
-    0
-  );
+  const outlay = Object.entries(coins).reduce((sum, [_, { outlay }]) => {
+    console.log("coin");
+    return outlay + sum;
+  }, 0);
 
   const unrealrev = Object.entries(coins).reduce((unr, [coin, { qtyLeft }]) => {
     return (unr += priceChecker[coin].value * qtyLeft);
@@ -98,22 +102,6 @@ const getStats = (transactions, priceChecker) => {
     realgl,
     actualrev,
   };
-};
-
-/**
- *
- * @param {TransactionDBColumns} transactionDvs
- * @returns {TransactionView}
- */
-export const getView = async (transactionDvs) => {
-  console.log(`TransactionDBColumns`);
-  console.log(transactionDvs);
-  const priceChecker = await CurrentPriceChecker();
-
-  const transactions = transactionDvsToFrondEnd(transactionDvs, priceChecker);
-  const stats = getStats(transactions, priceChecker);
-
-  return { stats, transactions };
 };
 
 /**
@@ -153,6 +141,30 @@ const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     currentValue,
   };
 };
+
+/**
+ * Exports
+ */
+
+/**
+ *
+ * @param {TransactionDBColumns} transactionDvs
+ * @returns {TransactionView}
+ */
+export const getView = async (transactionDvs) => {
+  console.log(`TransactionDBColumns`);
+  console.log(transactionDvs);
+  const priceChecker = await CurrentPriceChecker();
+
+  const transactions = transactionDvsToFrondEnd(transactionDvs, priceChecker);
+  const stats = getStats(transactions, priceChecker);
+
+  return { stats, transactions };
+};
+
+/**
+ * Exports
+ */
 
 /**
  *

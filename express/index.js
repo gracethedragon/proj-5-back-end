@@ -190,7 +190,6 @@ const mw = {
   },
 };
 
-
 app.post("/register", mw.user.register);
 app.get("/login", mw.user.login);
 
@@ -201,10 +200,7 @@ app.get("/view-transaction", mw.transaction.view);
 
 app.delete("/transaction", mw.transaction.delete);
 
-
 app.post("/add-view", mw.general.unimplemented);
 app.delete("/view", mw.general.unimplemented);
-
-
 
 export default app;

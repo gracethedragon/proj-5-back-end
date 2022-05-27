@@ -21,6 +21,10 @@
  */
 
 /**
+ * @typedef {Value} TxValue
+ */
+
+/**
  *
  * @typedef {Object} TransactionFE
  *  @property {string} hash
