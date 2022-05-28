@@ -65,7 +65,7 @@ const mw = ((db) => {
         console.log(`[get /all-transactions]`);
 
         try {
-          const { token, filterBy } = req.body;
+          const { token, filterBy } = req.query;
 
           const [_, sub, __] = await db.api.auth.verifyToken(token);
           const username = await db.api.auth.getUsernameOfUserId(sub);

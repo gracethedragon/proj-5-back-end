@@ -270,11 +270,13 @@ const attachedTransactionApi = (
       `[getTransactionsOfUser] for username ${username} production ${production}`
     );
 
-    const { column, params } = filterBy;
+    const { column, params: _params } = filterBy;
     if (!["Network", "Date", undefined, null].includes(column)) {
       throw new Error("Invalid Filter Parameter");
     }
+    // TODO assert Date as array
 
+    const params = Array.isArray(_params) ? _params : [_params];
     const txsFn = getTxOfUserWithFilterFn(username, column, params);
     const txs = await txsFn();
     const dvs = txs.map(({ dataValues }) => dataValues);
