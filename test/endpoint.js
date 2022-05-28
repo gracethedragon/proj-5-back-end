@@ -3,31 +3,16 @@ import assert from "assert";
 import request from "supertest";
 import crypto from "crypto";
 import app from "../express/index.js";
-
+import { httpGetAllTransactions } from "../test-helpers/index.js";
+import { getTokenResponseFns } from "../test-helpers/index.js";
 const username = "user1" + crypto.randomUUID().toString().slice(0, 6);
 const password = "tss";
 
-const gettokenResponse = async () => {
-  const res = await request(app)
-    .get("/login")
-    .set("Accept", "application/json")
-    .query({ email: username, password });
-
-  return res;
-};
-
-const getToken = async () => {
-  const res = await gettokenResponse();
-  return res.body.token;
-};
-
-const httpGetAllTransactions = async (app, token) =>
-  await request(app)
-    .get("/all-transactions")
-    .set("Accept", "application/json")
-    .query({
-      token,
-    });
+const [getTokenResponse, getToken] = getTokenResponseFns(
+  app,
+  username,
+  password
+);
 
 describe("GET /is-server-online", () => {
   it("should echo 200", (done) => {
@@ -49,17 +34,20 @@ describe("User Story 1+ ", async () => {
   });
 
   it("should login registered user", async () => {
-    const res = await gettokenResponse();
+    const res = await getTokenResponse();
     assert.strictEqual(res.status, 200);
   });
 
   it("Server should provision an access token", async () => {
-    const res = await gettokenResponse();
+    const res = await getTokenResponse();
 
     assert.strictEqual(200, res.status);
 
     const { body } = res;
-    const { token } = body;
+    const { token, username: usernameReceived } = body;
+
+    assert(!!token);
+    assert(usernameReceived, username);
 
     assert.ok(!!body);
     assert.ok(!!token);
@@ -67,14 +55,8 @@ describe("User Story 1+ ", async () => {
 });
 
 describe("transactions", async () => {
-  it("[001]Should be able to record a transaction ", async () => {
-    // Login
-
-    const _res = await gettokenResponse();
-    const token = _res.body.token;
-    const usernameReceived = _res.body.username;
-    assert(!!token);
-    assert(usernameReceived, username);
+  it("Should not record malformed transaction hash", async () => {
+    const token = await getToken();
 
     // Malformed Request
     const resOfMalformedRequest = await request(app)
@@ -86,9 +68,14 @@ describe("transactions", async () => {
         transactionHash:
           "0xf9e10f158459c93624f8b76b81649c4911d6abb846f89d68b59c3ff4a4163dd9",
       });
+    assert.strictEqual(400, resOfMalformedRequest.status);
+  }).timeout(0);
+  it("[001]Should be able to record a transaction ", async () => {
+    // Login
+
+    const token = await getToken();
 
     // Record 3 transactions - START
-    assert.strictEqual(400, resOfMalformedRequest.status);
     const resOfTransaction_Buy1 = await request(app)
       .post("/track-transaction")
       .set("Accept", "application/json")

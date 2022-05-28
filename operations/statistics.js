@@ -23,20 +23,29 @@ const coinmarketConfig = coinmarketcapSandboxConfig;
  * @returns {Promise<PriceChecker>}
  */
 export const CurrentPriceChecker = async () => {
+  const PriceChecker = {};
+
   const response = await axios.get(`${coinmarketConfig.urls.prices}`, {
     headers: { "X-CMC_PRO_API_KEY": coinmarketConfig.key },
     params: { symbol: "ETH", convert: "USD" },
   });
   const { data } = response;
   const { data: prices } = data;
-  const ETH = {
+
+  PriceChecker.ETH = {
     value: prices["ETH"][0]["quote"]["USD"].price,
     date: prices["ETH"][0]["quote"]["USD"].last_updated,
   };
 
-  return {
-    ETH,
+  PriceChecker.BTC = {
+    value: 0,
+    date: null,
   };
+
+  console.log(`[PriceChecker]`);
+  console.log(PriceChecker);
+
+  return PriceChecker;
 };
 
 /**
@@ -48,6 +57,13 @@ export const CurrentPriceChecker = async () => {
 export const getStats = (transactions, priceChecker) => {
   const coins = {
     ETH: {
+      outlay: 0,
+      qtyLeft: 0,
+      qtySold: 0,
+      actualrev: 0,
+    },
+
+    BTC: {
       outlay: 0,
       qtyLeft: 0,
       qtySold: 0,
@@ -76,7 +92,7 @@ export const getStats = (transactions, priceChecker) => {
 
   const saleoutlay = Object.entries(coins).reduce(
     (sum, [_, { qtySold, qtyLeft, outlay }]) => {
-      const avgBuyPrice = outlay / qtyLeft;
+      const avgBuyPrice = qtyLeft === 0 ? 0 : outlay / qtyLeft;
       return sum + avgBuyPrice * qtySold;
     },
     0
@@ -87,7 +103,7 @@ export const getStats = (transactions, priceChecker) => {
   }, 0);
 
   const unrealrev = Object.entries(coins).reduce((unr, [coin, { qtyLeft }]) => {
-    return (unr += priceChecker[coin].value * qtyLeft);
+    return unr + priceChecker[coin].value * qtyLeft;
   }, 0);
   const actualrev = Object.entries(coins).reduce((s, [coin, { actualrev }]) => {
     return s + actualrev;
@@ -161,9 +177,53 @@ export const getView = async (transactionDvs) => {
   return { stats, transactions };
 };
 
-/**
- * Exports
- */
+const getHashDatas = {
+  eth: async (transactionHash) => {
+    console.log(`[getHashDatas] eth`);
+
+    const network = "ETH";
+
+    try {
+      const txData = await axios.get(
+        `https://api.blockchair.com/ethereum/dashboards/transaction/${transactionHash}`
+      );
+
+      const details = txData.data.data[transactionHash].transaction;
+      const { value_usd: valueUSD, time: date, value: qtyStr } = details;
+      const qty = Number(qtyStr) / 1000000000000000000;
+
+      return { valueUSD, value: qty, date, network, transactionHash };
+    } catch (err) {
+      console.log(`[getHashDatas] eth error`);
+      return null;
+    }
+  },
+
+  btc: async (transactionHash) => {
+    console.log(`[getHashDatas] btc`);
+
+    try {
+      const txData = await axios.get(
+        `https://api.blockchair.com/bitcoin/dashboards/transaction/${transactionHash}`
+      );
+
+      const details = txData.data.data[transactionHash].transaction;
+      const {
+        output_total_usd: valueUSD,
+        time: date,
+        output_total: qtyStr,
+      } = details;
+      const qty = Number(qtyStr) / 100000000;
+      const network = "BTC";
+
+      return { valueUSD, value: qty, date, network, transactionHash };
+    } catch (err) {
+      console.log(`[getHashDatas] btc error`);
+
+      return null;
+    }
+  },
+};
 
 /**
  *
@@ -171,14 +231,14 @@ export const getView = async (transactionDvs) => {
  * @returns {HashData}
  */
 export const getHashData = async (transactionHash) => {
-  const txData = await axios.get(
-    `https://api.blockchair.com/ethereum/dashboards/transaction/${transactionHash}`
-  );
+  console.log(`[getHashData]`);
 
-  const details = txData.data.data[transactionHash].transaction;
-  const { value_usd: valueUSD, time: date, value: qtyStr } = details;
-  const qty = Number(qtyStr) / 1000000000000000000;
-  const network = "ETH";
+  for await (const _getHashData of [getHashDatas.eth, getHashDatas.btc]) {
+    const hashData = await _getHashData(transactionHash);
+    if (hashData) {
+      console.log(hashData);
 
-  return { valueUSD, value: qty, date, network, transactionHash };
+      return hashData;
+    }
+  }
 };

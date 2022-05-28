@@ -157,6 +157,7 @@ const mw = ((db) => {
           const view = await getView([dataValues]);
           return res.status(200).json(view);
         } catch (err) {
+          console.log(err);
           res.status(400).json(err);
         }
       },

@@ -2,6 +2,19 @@ import assert from "assert";
 
 import { getStats } from "../operations/statistics.js";
 
+const cpc = {
+  ETH: {
+    date: Date(),
+    value: 1745.29,
+  },
+
+  BTC: {
+    date: Date(),
+
+    value: 1,
+  },
+};
+
 describe("Statistics", () => {
   it("getStats of Three buy transactions", async () => {
     const transactionType = "BUY";
@@ -49,13 +62,6 @@ describe("Statistics", () => {
 
       hash: "0x607e05812d36d29dde45585da542bbe546596f1a342d814e5496f8f951d8b59a",
       transactionType,
-    };
-
-    const cpc = {
-      ETH: {
-        date: Date(),
-        value: 1745.29,
-      },
     };
 
     const stats = getStats([buy1, buy2, buy3], cpc);
@@ -120,13 +126,6 @@ describe("Statistics", () => {
 
       hash: "0x607e05812d36d29dde45585da542bbe546596f1a342d814e5496f8f951d8b59a",
       transactionType: "SELL",
-    };
-
-    const cpc = {
-      ETH: {
-        date: Date(),
-        value: 1745.29,
-      },
     };
 
     const stats = getStats([buy1, buy2, sell1], cpc);
