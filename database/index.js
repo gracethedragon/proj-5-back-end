@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { systemConfig } from "../config/index.js";
 import jwt from "jsonwebtoken";
 import axios from "axios";
+import { Op } from "sequelize";
 
 // HELPERS
 const hashPassword = (plain) =>
@@ -212,6 +213,7 @@ const getOutlayAndAssetPrice = async (transaction, production) => {
 
 const attachedTransactionApi = (
   { User, TrackedTransaction },
+  sequelize,
   { production }
 ) => {
   const record = async ({
@@ -235,15 +237,77 @@ const attachedTransactionApi = (
     });
   };
 
-  const getTransactionsOfUser = async ({ username }, production = false) => {
+  const TransactionFilterColumns = {
+    network: "Network",
+    date: "Date",
+  };
+
+  const getTxOfUserWithFilterFn = (username, column, params) => {
+    console.log(`[getTxOfUserWithFilterFn] column ${column}`);
+    console.log(`[getTxOfUserWithFilterFn] params ${params}`);
+    if (!column) {
+      return async () =>
+        await TrackedTransaction.findAll({
+          where: { tracker: username },
+        });
+    } else if (column === TransactionFilterColumns.network) {
+      const networks = params;
+      return async () =>
+        await TrackedTransaction.findAll({
+          where: { tracker: username, network: { [Op.in]: networks } },
+        });
+    } else if (column === TransactionFilterColumns.date) {
+      const [from, to] = params;
+      return async () =>
+        await TrackedTransaction.findAll({
+          where: { tracker: username, date: { [Op.between]: [from, to] } },
+        });
+    }
+  };
+  const getTransactionsOfUser = async (
+    { username, filterBy },
+    production = false
+  ) => {
     console.log(
       `[getTransactionsOfUser] for username ${username} production ${production}`
     );
 
+    const { column, parameters: _params } = filterBy;
+    if (!["Network", "Date", undefined, null].includes(column)) {
+      throw new Error("Invalid Filter Parameter");
+    }
+    console.log("filter---");
+    console.log(typeof filterBy);
+    console.log(filterBy);
+    if (column === "Network") {
+      console.log("Filter by Network");
+
+      console.log(filterBy);
+    }
+    // TODO assert Date as array
+
+    // col Network params "BTC" | ["BTC","ETH"]| ["BTC"]
+    // col Date params [from,to]
+    // Network
+    // BTC
+    // ETH
+    const params = Array.isArray(_params) ? _params : [_params];
+    const txsFn = getTxOfUserWithFilterFn(username, column, params);
+    const txs = await txsFn();
+    const dvs = txs.map(({ dataValues }) => dataValues);
+
+    return dvs;
+  };
+
+  const getTransactionsByIds = async ({ transactionIds }) => {
+    console.log(`[getTransactionsByIds]`);
+    console.log(transactionIds);
+
     const txs = await TrackedTransaction.findAll({
-      where: { tracker: username },
+      where: { id: transactionIds },
     });
 
+    console.log(txs);
     const dvs = txs.map(({ dataValues }) => dataValues);
 
     return dvs;
@@ -264,23 +328,99 @@ const attachedTransactionApi = (
     getTransactionsOfUser,
     deleteTransactionById,
     getTransactionById,
+    getTransactionsByIds,
   };
 };
 
+const attachViewApi = ({ User, TrackedTransaction, View, ViewOwnership }) => {
+  const create = async ({ owner }) => {
+    console.log(`[db.ap.view.create] creating view`);
+    try {
+      const name =
+        owner + "-view-" + crypto.randomUUID().toString().slice(0, 6);
+      const result = await ViewOwnership.create({ owner, name });
+      console.log(`[db.ap.view.create] created`);
+      return result;
+    } catch (err) {
+      console.log(`[db.ap.view.create] err`);
+      return null;
+    }
+  };
+
+  const addTxsToView = async ({ viewId, transactionIds }) => {
+    try {
+      for await (const transactionId of transactionIds) {
+        const viewedTx = await View.create({ viewId, transactionId });
+        console.log(`[addTxsToView] viewedTx`);
+        console.log(viewedTx);
+      }
+
+      return true;
+    } catch (err) {
+      console.log(`[addTxsToView]`);
+      console.log(err);
+      return false;
+    }
+  };
+
+  const getViewList = async ({ owner }) => {
+    return (await ViewOwnership.findAll({ where: { owner } })).map(
+      ({ dataValues }) => dataValues
+    );
+  };
+
+  const getView = async ({ viewId }) => {
+    return (await View.findAll({ viewId })).map(({ dataValues }) => dataValues);
+  };
+
+  const getTransactionIdsOfView = async ({ viewId }) => {
+    const viewedTransactions = await getView({ viewId });
+
+    return viewedTransactions.map(({ transactionId }) => transactionId);
+  };
+
+  const deleteViewById = async ({ id }) =>
+    await ViewOwnership.destroy({ where: { id } });
+
+  return {
+    create,
+    addTxsToView,
+    getViewList,
+    getTransactionIdsOfView,
+    getView,
+    deleteViewById,
+  };
+};
 export const initDatabase = (sequelize, production = false) => {
   initModels(sequelize);
 
   const models = sequelize.models;
-  const { user, trackedTransaction } = models;
+  const { user, trackedTransaction, viewOwnership, view } = models;
+
+  if (
+    ![user, trackedTransaction, viewOwnership, view].every(
+      (model) => model !== undefined && model !== null
+    )
+  ) {
+    throw new Error("Some models not initiated");
+  }
 
   const auth = attachAuthApi(user);
   const transaction = attachedTransactionApi(
     { User: user, TrackedTransaction: trackedTransaction },
+    sequelize,
     { production }
   );
 
+  const viewApi = attachViewApi({
+    User: user,
+    TrackedTransaction: trackedTransaction,
+    ViewOwnership: viewOwnership,
+    View: view,
+  });
+
   const wipe = async () => {
-    for await (const model of [trackedTransaction, user]) {
+    for await (const model of [view, viewOwnership, trackedTransaction, user]) {
       await model.destroy({ where: {} });
     }
   };
@@ -305,6 +445,8 @@ export const initDatabase = (sequelize, production = false) => {
     api: {
       auth,
       transaction,
+
+      view: viewApi,
     },
   };
 };

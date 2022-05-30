@@ -1,4 +1,4 @@
-const TABLE_NAME = "tracked_transactions";
+const TABLE_NAME = "views";
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -18,39 +18,27 @@ module.exports = {
         allowNull: false,
         type: DataTypes.DATE,
       },
-      tracker: {
-        type: DataTypes.STRING,
+      view_id: {
+        type: DataTypes.INTEGER,
         references: {
           model: {
-            tableName: "users",
+            tableName: "view_ownerships",
           },
-          key: "username",
+          key: "id",
         },
         allowNull: false,
+        onDelete: "CASCADE",
       },
-      value: {
-        type: DataTypes.DOUBLE,
+      transaction_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: {
+            tableName: "tracked_transactions",
+          },
+          key: "id",
+        },
         allowNull: false,
-      },
-      valueUSD: {
-        type: DataTypes.DOUBLE,
-        allowNull: false,
-      },
-      network: {
-        type: DataTypes.ENUM(["ETH", "BTC"]),
-        allowNull: false,
-      },
-      date: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
-      type: {
-        type: DataTypes.ENUM(["TRANSFER-IN", "BUY", "SELL"]),
-        allowNull: false,
-      },
-      transaction_hash: {
-        type: DataTypes.STRING,
-        allowNull: false,
+        onDelete: "CASCADE",
       },
     });
   },

@@ -6,10 +6,12 @@
   "scripts": {
     "start-dev": "node index.js",
     "start": "npm run start-dev",
-    "test": "mocha test/test.js",
+    "test-all": "mocha test/index.js",
+    "test-stats": "mocha test/statistics.js",
     "db:create": "sequelize db:create",
     "db:migrate": "sequelize db:migrate",
     "db:drop": "sequelize db:drop",
+    "nodemon": "nodemon index.js",
     "db:gen:migration": "sequelize migration:generate --name"
   },
   "repository": {
