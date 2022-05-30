@@ -243,6 +243,8 @@ const attachedTransactionApi = (
   };
 
   const getTxOfUserWithFilterFn = (username, column, params) => {
+    console.log(`[getTxOfUserWithFilterFn] column ${column}`);
+    console.log(`[getTxOfUserWithFilterFn] params ${params}`);
     if (!column) {
       return async () =>
         await TrackedTransaction.findAll({
@@ -263,19 +265,32 @@ const attachedTransactionApi = (
     }
   };
   const getTransactionsOfUser = async (
-    { username, filterBy = {} },
+    { username, filterBy },
     production = false
   ) => {
     console.log(
       `[getTransactionsOfUser] for username ${username} production ${production}`
     );
 
-    const { column, params: _params } = filterBy;
+    const { column, parameters: _params } = filterBy;
     if (!["Network", "Date", undefined, null].includes(column)) {
       throw new Error("Invalid Filter Parameter");
     }
+    console.log("filter---");
+    console.log(typeof filterBy);
+    console.log(filterBy);
+    if (column === "Network") {
+      console.log("Filter by Network");
+
+      console.log(filterBy);
+    }
     // TODO assert Date as array
 
+    // col Network params "BTC" | ["BTC","ETH"]| ["BTC"]
+    // col Date params [from,to]
+    // Network
+    // BTC
+    // ETH
     const params = Array.isArray(_params) ? _params : [_params];
     const txsFn = getTxOfUserWithFilterFn(username, column, params);
     const txs = await txsFn();

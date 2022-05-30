@@ -28,7 +28,11 @@ const mw = ((db) => {
   return {
     user: {
       register: async (req, res) => {
-        const { username, password: plainPassword, password2 } = req.body;
+        const {
+          email: username,
+          password: plainPassword,
+          password2,
+        } = req.body;
         const [id, msg] = await db.api.auth.registerUser({
           username,
           plainPassword,
@@ -65,10 +69,12 @@ const mw = ((db) => {
         console.log(`[get /all-transactions]`);
 
         try {
-          const { token, filterBy } = req.query;
+          const { token, filterBy: _filterByStr } = req.query;
 
           const [_, sub, __] = await db.api.auth.verifyToken(token);
           const username = await db.api.auth.getUsernameOfUserId(sub);
+
+          const filterBy = JSON.parse(_filterByStr ? _filterByStr : "{}");
 
           try {
             const transactions = await db.api.transaction.getTransactionsOfUser(
@@ -101,8 +107,7 @@ const mw = ((db) => {
       },
       delete: async (req, res) => {
         console.log(`Server [DELETE /transaction]`);
-        console.log(req.body);
-        const { token, dbtransactionId } = req.body;
+        const { token, dbtransactionId } = req.query;
 
         const [_, sub, __] = await db.api.auth.verifyToken(token);
 
@@ -163,8 +168,8 @@ const mw = ((db) => {
       },
       get_: async (req, res) => {
         console.log(`Server [GET /get-transaction]`);
-        console.log(req.body);
-        const { token, dbtransactionId } = req.body;
+        console.log(req.query);
+        const { token, dbtransactionId } = req.query;
         const [_, sub, __] = await db.api.auth.verifyToken(token);
         if (!sub) {
           return res.sendStatus(401);
@@ -198,7 +203,7 @@ const mw = ((db) => {
 
     view: {
       get_: async (req, res) => {
-        const { token, viewId } = req.body;
+        const { token, viewId } = req.query;
         const [_, sub, __] = await db.api.auth.verifyToken(token);
         if (!sub) {
           return res.sendStatus(401);
@@ -222,13 +227,13 @@ const mw = ((db) => {
 
           const view = await getView(transactions);
 
-          return res.status(200).json(view);
+          return res.status(200).json({ view, viewId });
         } catch (err) {
           return res.sendStatus(501);
         }
       },
       getAll: async (req, res) => {
-        const { token } = req.body;
+        const { token } = req.query;
         const [_, sub, __] = await db.api.auth.verifyToken(token);
         if (!sub) {
           return res.sendStatus(401);
@@ -259,8 +264,8 @@ const mw = ((db) => {
 
       delete: async (req, res) => {
         console.log(`Server [DELETE /view]`);
-        console.log(req.body);
-        const { token, viewId } = req.body;
+        console.log(req.query);
+        const { token, viewId } = req.query;
 
         const [_, sub, __] = await db.api.auth.verifyToken(token);
 
@@ -283,7 +288,7 @@ const mw = ((db) => {
         }
       },
       new_: async (req, res) => {
-        console.log(`[GET /new-view]`);
+        console.log(`[POST /new-view]`);
         const { token, transactionIds } = req.body;
 
         console.log({ token, transactionIds });

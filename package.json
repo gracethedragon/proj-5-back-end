@@ -11,6 +11,7 @@
     "db:create": "sequelize db:create",
     "db:migrate": "sequelize db:migrate",
     "db:drop": "sequelize db:drop",
+    "nodemon": "nodemon index.js",
     "db:gen:migration": "sequelize migration:generate --name"
   },
   "repository": {

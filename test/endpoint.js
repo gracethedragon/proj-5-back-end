@@ -28,7 +28,7 @@ describe("User Story 1+ ", async () => {
     const res = await request(app)
       .post("/register")
       .set("Accept", "application/json")
-      .send({ username, password, password2: password });
+      .send({ email: username, password, password2: password });
 
     assert.strictEqual(res.status, 200);
   });
@@ -129,7 +129,7 @@ describe("transactions", async () => {
       const resOfTransaction_ViewBuy = await request(app)
         .get("/get-transaction")
         .set("Accept", "application/json")
-        .send({
+        .query({
           token,
           dbtransactionId: transaction.id,
         });
@@ -198,7 +198,7 @@ describe("transactions", async () => {
       const viewBuyTransactionResponse = await request(app)
         .get("/get-transaction")
         .set("Accept", "application/json")
-        .send({
+        .query({
           token,
           dbtransactionId: firstTransactionIdReceivedFromGetAllTransactions,
         });
@@ -333,7 +333,7 @@ describe("views", async () => {
     const allViewsResponse = await request(app)
       .get("/all-views")
       .set("Accept", "application/json")
-      .send({ token });
+      .query({ token });
     assert.strictEqual(200, allViewsResponse.status);
 
     assert.strictEqual(1, allViewsResponse.body.views.length);
@@ -348,7 +348,7 @@ describe("views", async () => {
     const getFirstViewResponse = await request(app)
       .get("/get-view")
       .set("Accept", "application/json")
-      .send({ token, viewId: firstViewIdOfUser });
+      .query({ token, viewId: firstViewIdOfUser });
     assert.strictEqual(200, getFirstViewResponse.status);
     console.log(getFirstViewResponse.body);
     assert.strictEqual(2, getFirstViewResponse.body.transactions.length);
@@ -367,7 +367,7 @@ describe("views", async () => {
     const getFirstViewAfterDeleteTransactionInViewResponse = await request(app)
       .get("/get-view")
       .set("Accept", "application/json")
-      .send({ token, viewId: firstViewIdOfUser });
+      .query({ token, viewId: firstViewIdOfUser });
     assert.strictEqual(
       200,
       getFirstViewAfterDeleteTransactionInViewResponse.status
@@ -375,19 +375,20 @@ describe("views", async () => {
     console.log(getFirstViewAfterDeleteTransactionInViewResponse.body);
     assert.strictEqual(
       1,
-      getFirstViewAfterDeleteTransactionInViewResponse.body.transactions.length
+      getFirstViewAfterDeleteTransactionInViewResponse.body.view.transactions
+        .length
     );
 
     const deleteFirstViewResponse = await request(app)
       .delete("/view")
       .set("Accept", "application/json")
-      .send({ token, viewId: firstViewIdOfUser });
+      .query({ token, viewId: firstViewIdOfUser });
     assert.strictEqual(200, deleteFirstViewResponse.status);
 
     const allViewsResponseAfterDeleteView = await request(app)
       .get("/all-views")
       .set("Accept", "application/json")
-      .send({ token });
+      .query({ token });
     assert.strictEqual(200, allViewsResponseAfterDeleteView.status);
 
     assert.strictEqual(0, allViewsResponseAfterDeleteView.body.views.length);

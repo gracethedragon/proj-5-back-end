@@ -28,7 +28,7 @@ describe("User Story 1+ ", async () => {
     const res = await request(app)
       .post("/register")
       .set("Accept", "application/json")
-      .send({ username, password, password2: password });
+      .send({ email: username, password, password2: password });
 
     assert.strictEqual(res.status, 200);
   });
