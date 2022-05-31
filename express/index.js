@@ -73,8 +73,14 @@ const mw = ((db) => {
 
           const [_, sub, __] = await db.api.auth.verifyToken(token);
           const username = await db.api.auth.getUsernameOfUserId(sub);
-
-          const filterBy = JSON.parse(_filterByStr ? _filterByStr : "{}");
+          console.log(_filterByStr);
+          const filterBy = ((_filterByStr) => {
+            try {
+              return JSON.parse(_filterByStr ? _filterByStr : "{}");
+            } catch {
+              return _filterByStr;
+            }
+          })(_filterByStr);
 
           try {
             const transactions = await db.api.transaction.getTransactionsOfUser(
@@ -138,7 +144,7 @@ const mw = ((db) => {
       },
       track: async (req, res) => {
         console.log(`[POST /track-transaction]`);
-        const { token, transactionType: type, transactionHash } = req.body;
+        const { token, transactionType: type, transactionHash, unitCostPrice } = req.body;
         try {
           const [_, sub, __] = await db.api.auth.verifyToken(token);
           /** @type {Tracker} */
@@ -148,12 +154,12 @@ const mw = ((db) => {
 
           const transactionToSubmit = {
             tracker: username,
-            type,
+            type,unitCostPrice,
             ...hashData,
           };
 
           const trackedTransaction = await db.api.transaction.record(
-            transactionToSubmit
+            transactionToSubmit, 
           );
 
           /** @type {TransactionDBColumns} */

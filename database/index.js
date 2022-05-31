@@ -218,7 +218,7 @@ const attachedTransactionApi = (
 ) => {
   const record = async ({
     tracker,
-    type,
+    type,unitCostPrice,
     transactionHash,
     value,
     valueUSD,
@@ -231,7 +231,7 @@ const attachedTransactionApi = (
       type,
       transactionHash,
       value,
-      valueUSD,
+      valueUSD,unitCostPrice,
       date,
       network,
     });
@@ -284,13 +284,7 @@ const attachedTransactionApi = (
 
       console.log(filterBy);
     }
-    // TODO assert Date as array
 
-    // col Network params "BTC" | ["BTC","ETH"]| ["BTC"]
-    // col Date params [from,to]
-    // Network
-    // BTC
-    // ETH
     const params = Array.isArray(_params) ? _params : [_params];
     const txsFn = getTxOfUserWithFilterFn(username, column, params);
     const txs = await txsFn();

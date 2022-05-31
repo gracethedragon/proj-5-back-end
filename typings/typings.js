@@ -34,6 +34,7 @@
  * @property  {string} transactionType
  * @property  {TxValue} txValue
  * @property  {Value} currentValue
+ * @property  {number} unitCostPrice
  */
 
 /**
@@ -87,4 +88,5 @@
  * @property {number} valueUSD
  * @property {TransactionHash} transactionHash
  * @property {TransactionType} type
+ * @property {number} unitCostPrice
  */

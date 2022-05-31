@@ -55,6 +55,14 @@ const initModel_TrackedTransactions = (sequelize, DataTypes) => {
 
         field: "date",
       },
+
+      unitCostPrice: {
+
+        type: DataTypes.DOUBLE,
+
+        field: "unit_cost_price",
+
+      },
       type: {
         type: DataTypes.ENUM(["TRANSFER-IN", "BUY", "SELL"]),
         field: "type",

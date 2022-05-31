@@ -132,7 +132,7 @@ const transactionDvsToFrondEnd = (transactionDvs, priceChecker) =>
  *
  * @param {TransactionDBColumns} transactionDv
  * @param {PriceChecker} priceChecker
- * @returns
+ * @returns {TransactionFE}
  */
 const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
   const {
@@ -142,7 +142,7 @@ const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     type: transactionType,
     date,
     id,
-    valueUSD,
+    valueUSD,unitCostPrice
   } = transactionDv;
   const currentValue = priceChecker[network];
 
@@ -150,7 +150,7 @@ const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     hash,
     qty: value,
     id,
-    network,
+    network,unitCostPrice,
     transactionType,
     txValue: { date, value: valueUSD },
     currentValue,

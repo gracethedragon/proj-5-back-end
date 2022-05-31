@@ -100,7 +100,7 @@ describe("transactions", async () => {
       .post("/track-transaction")
       .set("Accept", "application/json")
       .send({
-        token,
+        token,unitCostPrice: 1300,
         transactionType: "SELL",
         transactionHash:
           "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
@@ -109,6 +109,11 @@ describe("transactions", async () => {
     assert.strictEqual(200, resOfTransaction_Buy1.status);
     assert.strictEqual(200, resOfTransaction_Buy2.status);
     assert.strictEqual(200, resOfTransaction_Sell.status);
+
+    console.log(`----resOfTransaction_Sell`)
+    console.log(resOfTransaction_Sell.body)
+
+    assert.strictEqual(1300, resOfTransaction_Sell.body.transactions[0].unitCostPrice)
     // Record 3 transactions - END
 
     await (async () => {
@@ -206,7 +211,7 @@ describe("transactions", async () => {
       const deleteBuyTransactionResponse = await request(app)
         .delete("/transaction")
         .set("Accept", "application/json")
-        .send({
+        .query({
           token,
           dbtransactionId: firstTransactionIdReceivedFromGetAllTransactions,
         });
@@ -228,7 +233,7 @@ describe("transactions", async () => {
           token,
           filterBy: {
             column: "Network",
-            params: ["ETH"],
+            parameters: ["ETH"],
           },
         });
 
@@ -237,6 +242,7 @@ describe("transactions", async () => {
         2,
         allTransactionsFilterByNetworkETH.body.transactions.length
       );
+      console.log(`Mocha [allTransactionsFilterByNetworkBTC]`);
 
       const allTransactionsFilterByNetworkBTC = await request(app)
         .get("/all-transactions")
@@ -245,7 +251,7 @@ describe("transactions", async () => {
           token,
           filterBy: {
             column: "Network",
-            params: ["BTC"],
+            parameters: ["BTC"],
           },
         });
 
@@ -289,7 +295,7 @@ describe("transactions", async () => {
             token,
             filterBy: {
               column: "Date",
-              params: [from, to],
+              parameters: [from, to],
             },
           });
 
@@ -351,16 +357,16 @@ describe("views", async () => {
       .query({ token, viewId: firstViewIdOfUser });
     assert.strictEqual(200, getFirstViewResponse.status);
     console.log(getFirstViewResponse.body);
-    assert.strictEqual(2, getFirstViewResponse.body.transactions.length);
+    assert.strictEqual(2, getFirstViewResponse.body.view.transactions.length);
 
     const firstTransactionIdOfFirstView =
-      getFirstViewResponse.body.transactions[0].id;
+      getFirstViewResponse.body.view.transactions[0].id;
 
     const deleteFirstTransactionIdOfFirstView = await request(app)
       .delete("/transaction")
       .set("Accept", "application/json")
 
-      .send({ token, dbtransactionId: firstTransactionIdOfFirstView });
+      .query({ token, dbtransactionId: firstTransactionIdOfFirstView });
 
     assert.strictEqual(200, deleteFirstTransactionIdOfFirstView.status);
 

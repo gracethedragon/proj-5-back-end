@@ -28,6 +28,8 @@ module.exports = {
         },
         allowNull: false,
       },
+
+
       value: {
         type: DataTypes.DOUBLE,
         allowNull: false,
@@ -44,8 +46,14 @@ module.exports = {
         type: DataTypes.DATE,
         allowNull: false,
       },
+      unit_cost_price: {
+
+        type: DataTypes.DOUBLE,
+
+      },
+
       type: {
-        type: DataTypes.ENUM(["TRANSFER-IN", "BUY", "SELL"]),
+        type: DataTypes.ENUM(["BUY", "SELL"]),
         allowNull: false,
       },
       transaction_hash: {
