@@ -40,6 +40,10 @@ const initModel_TrackedTransactions = (sequelize, DataTypes) => {
         type: DataTypes.ENUM(["ETH", "BTC"]),
         allowNull: false,
         field: "network",
+      },      token: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: "token",
       },
 
       valueUSD: {

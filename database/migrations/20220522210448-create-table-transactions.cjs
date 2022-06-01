@@ -41,6 +41,12 @@ module.exports = {
         type: DataTypes.ENUM(["ETH", "BTC"]),
         allowNull: false,
       },
+
+        token: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+
       date: {
         type: DataTypes.DATE,
         allowNull: false,

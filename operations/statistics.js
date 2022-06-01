@@ -186,28 +186,30 @@ export const getView = async (transactionDvs) => {
 
 const getHashDatas = {
   eth: async (transactionHash) => {
-    console.log(`[getHashDatas] eth`);
+    console.log(`[getHashDatas] getHashData - eth`);
 
     const network = "ETH";
 
     try {
       const txData = await axios.get(
-        `https://api.blockchair.com/ethereum/dashboards/transaction/${transactionHash}`
+        `https://api.blockchair.com/ethereum/dashboards/transaction/${transactionHash}?events=true&erc_20=true&erc_721=true&assets_in_usd=true&effects=true&trace_mempool=true`
       );
+     
 
       const details = txData.data.data[transactionHash].transaction;
       const { value_usd: valueUSD, time: date, value: qtyStr } = details;
       const qty = Number(qtyStr) / 1000000000000000000;
 
-      return { valueUSD, value: qty, date, network, transactionHash };
+      return { valueUSD, value: qty, date, token: network, network, transactionHash };
     } catch (err) {
       console.log(`[getHashDatas] eth error`);
+      console.log(err)
       return null;
     }
   },
 
   btc: async (transactionHash) => {
-    console.log(`[getHashDatas] btc`);
+    console.log(`[getHashDatas] getHashData - btc`);
 
     try {
       const txData = await axios.get(
@@ -223,7 +225,7 @@ const getHashDatas = {
       const qty = Number(qtyStr) / 100000000;
       const network = "BTC";
 
-      return { valueUSD, value: qty, date, network, transactionHash };
+      return { valueUSD, value: qty, date, token: network, network, transactionHash };
     } catch (err) {
       console.log(`[getHashDatas] btc error`);
 
