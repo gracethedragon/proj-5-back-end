@@ -142,7 +142,8 @@ const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     type: transactionType,
     date,
     id,
-    valueUSD,unitCostPrice
+    valueUSD,
+    unitCostPrice,
   } = transactionDv;
   const currentValue = priceChecker[network];
 
@@ -150,7 +151,8 @@ const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     hash,
     qty: value,
     id,
-    network,unitCostPrice,
+    network,
+    unitCostPrice,
     transactionType,
     txValue: { date, value: valueUSD },
     currentValue,

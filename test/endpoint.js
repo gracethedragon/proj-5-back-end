@@ -100,7 +100,8 @@ describe("transactions", async () => {
       .post("/track-transaction")
       .set("Accept", "application/json")
       .send({
-        token,unitCostPrice: 1300,
+        token,
+        unitCostPrice: 1300,
         transactionType: "SELL",
         transactionHash:
           "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
@@ -110,10 +111,13 @@ describe("transactions", async () => {
     assert.strictEqual(200, resOfTransaction_Buy2.status);
     assert.strictEqual(200, resOfTransaction_Sell.status);
 
-    console.log(`----resOfTransaction_Sell`)
-    console.log(resOfTransaction_Sell.body)
+    console.log(`----resOfTransaction_Sell`);
+    console.log(resOfTransaction_Sell.body);
 
-    assert.strictEqual(1300, resOfTransaction_Sell.body.transactions[0].unitCostPrice)
+    assert.strictEqual(
+      1300,
+      resOfTransaction_Sell.body.transactions[0].unitCostPrice
+    );
     // Record 3 transactions - END
 
     await (async () => {

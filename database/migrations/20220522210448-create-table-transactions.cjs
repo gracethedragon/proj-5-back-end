@@ -29,7 +29,6 @@ module.exports = {
         allowNull: false,
       },
 
-
       value: {
         type: DataTypes.DOUBLE,
         allowNull: false,
@@ -47,9 +46,7 @@ module.exports = {
         allowNull: false,
       },
       unit_cost_price: {
-
         type: DataTypes.DOUBLE,
-
       },
 
       type: {

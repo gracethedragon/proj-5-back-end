@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken";
 import axios from "axios";
 import { Op } from "sequelize";
 
+import { Sequelize } from "sequelize";
+
 // HELPERS
 const hashPassword = (plain) =>
   crypto
@@ -218,7 +220,8 @@ const attachedTransactionApi = (
 ) => {
   const record = async ({
     tracker,
-    type,unitCostPrice,
+    type,
+    unitCostPrice,
     transactionHash,
     value,
     valueUSD,
@@ -231,7 +234,8 @@ const attachedTransactionApi = (
       type,
       transactionHash,
       value,
-      valueUSD,unitCostPrice,
+      valueUSD,
+      unitCostPrice,
       date,
       network,
     });
@@ -327,12 +331,12 @@ const attachedTransactionApi = (
 };
 
 const attachViewApi = ({ User, TrackedTransaction, View, ViewOwnership }) => {
-  const create = async ({ owner }) => {
+  const create = async ({ owner, name }) => {
     console.log(`[db.ap.view.create] creating view`);
     try {
-      const name =
-        owner + "-view-" + crypto.randomUUID().toString().slice(0, 6);
-      const result = await ViewOwnership.create({ owner, name });
+      const _name =
+        name ?? owner + "-view-" + crypto.randomUUID().toString().slice(0, 6);
+      const result = await ViewOwnership.create({ owner, name: _name });
       console.log(`[db.ap.view.create] created`);
       return result;
     } catch (err) {
@@ -357,6 +361,24 @@ const attachViewApi = ({ User, TrackedTransaction, View, ViewOwnership }) => {
     }
   };
 
+  const getViewIdsOfTransactionByTransactionId = async ({ transactionId }) => {
+    return (
+      await View.findAll({
+        where: { transactionId },
+        attributes: [
+          [Sequelize.fn("DISTINCT", Sequelize.col("view_id")), "txViewId"],
+        ],
+      })
+    ).map(({ dataValues }) => dataValues);
+  };
+
+  const getViewInfoByIds = async ({ viewIds }) => {
+    return await ViewOwnership.findAll({
+      where: {
+        id: viewIds,
+      },
+    });
+  };
   const getViewList = async ({ owner }) => {
     return (await ViewOwnership.findAll({ where: { owner } })).map(
       ({ dataValues }) => dataValues
@@ -365,6 +387,14 @@ const attachViewApi = ({ User, TrackedTransaction, View, ViewOwnership }) => {
 
   const getView = async ({ viewId }) => {
     return (await View.findAll({ viewId })).map(({ dataValues }) => dataValues);
+  };
+
+  const getViewNameById = async ({ viewId }) => {
+    const viewOwnership = await ViewOwnership.findOne({
+      where: { id: viewId },
+    });
+
+    return viewOwnership.dataValues.name;
   };
 
   const getTransactionIdsOfView = async ({ viewId }) => {
@@ -379,9 +409,12 @@ const attachViewApi = ({ User, TrackedTransaction, View, ViewOwnership }) => {
   return {
     create,
     addTxsToView,
+    getViewNameById,
     getViewList,
     getTransactionIdsOfView,
     getView,
+    getViewInfoByIds,
+    getViewIdsOfTransactionByTransactionId,
     deleteViewById,
   };
 };

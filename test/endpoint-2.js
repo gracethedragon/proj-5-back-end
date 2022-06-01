@@ -83,4 +83,60 @@ describe("transactions", async () => {
 
     assert.strictEqual(1, transactions.length);
   });
+
+  it("[003] Should add view with custom name", async () => {
+    const token = await getToken();
+
+    const response = await httpGetAllTransactions(app, token);
+
+    const txId = response.body.transactions[0].id;
+    const viewname = "view with custom name";
+    const viewname2 = "view 22222";
+    const newViewResponse = await request(app)
+      .post("/new-view")
+      .set("Accept", "application/json")
+      .send({ token, transactionIds: [txId], viewname });
+
+    await request(app)
+      .post("/new-view")
+      .set("Accept", "application/json")
+      .send({ token, transactionIds: [txId], viewname: viewname2 });
+
+    assert.strictEqual(200, newViewResponse.status);
+
+    const { id: viewId } = newViewResponse.body;
+    assert.notStrictEqual(undefined, viewId);
+    assert.notStrictEqual(null, viewId);
+
+    const allViewsResponse = await request(app)
+      .get("/all-views")
+      .set("Accept", "application/json")
+      .query({ token });
+    assert.strictEqual(200, allViewsResponse.status);
+
+    assert.strictEqual(2, allViewsResponse.body.views.length);
+
+    console.log(allViewsResponse.body.views);
+    const firstViewIdOfUser = allViewsResponse.body.views[0].id;
+
+    assert.notStrictEqual(null, firstViewIdOfUser);
+    assert.notStrictEqual(undefined, firstViewIdOfUser);
+
+    const getFirstViewResponse = await request(app)
+      .get("/get-view")
+      .set("Accept", "application/json")
+      .query({ token, viewId: firstViewIdOfUser });
+    assert.strictEqual(200, getFirstViewResponse.status);
+    console.log(getFirstViewResponse.body);
+    assert.strictEqual(1, getFirstViewResponse.body.view.transactions.length);
+    assert.strictEqual(viewname, getFirstViewResponse.body.viewName);
+
+    const getViewsOfTransaction = await request(app)
+      .get("/get-views-of-transaction")
+      .set("Accept", "application/json")
+      .query({ transactionId: txId });
+
+    assert.strictEqual(200, getViewsOfTransaction.status);
+    assert.strictEqual(2, getViewsOfTransaction.body.viewInfo.length);
+  });
 });

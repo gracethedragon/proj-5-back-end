@@ -29,6 +29,7 @@ module.exports = {
         allowNull: false,
         onDelete: "CASCADE",
       },
+
       transaction_id: {
         type: DataTypes.INTEGER,
         references: {

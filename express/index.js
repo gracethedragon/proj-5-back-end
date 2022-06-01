@@ -144,7 +144,12 @@ const mw = ((db) => {
       },
       track: async (req, res) => {
         console.log(`[POST /track-transaction]`);
-        const { token, transactionType: type, transactionHash, unitCostPrice } = req.body;
+        const {
+          token,
+          transactionType: type,
+          transactionHash,
+          unitCostPrice,
+        } = req.body;
         try {
           const [_, sub, __] = await db.api.auth.verifyToken(token);
           /** @type {Tracker} */
@@ -154,12 +159,13 @@ const mw = ((db) => {
 
           const transactionToSubmit = {
             tracker: username,
-            type,unitCostPrice,
+            type,
+            unitCostPrice,
             ...hashData,
           };
 
           const trackedTransaction = await db.api.transaction.record(
-            transactionToSubmit, 
+            transactionToSubmit
           );
 
           /** @type {TransactionDBColumns} */
@@ -208,6 +214,34 @@ const mw = ((db) => {
     },
 
     view: {
+      getOfTransactions: async (req, res) => {
+        console.log(`[getOfTransactions]`);
+        const { token, transactionId } = req.query;
+        try {
+          const views =
+            await db.api.view.getViewIdsOfTransactionByTransactionId({
+              transactionId,
+            });
+
+          const viewIds = views.map((view) => view.txViewId);
+
+          console.log(`[getOfTransactions] viewIds`);
+          console.log(viewIds);
+
+          const viewInfo = await db.api.view.getViewInfoByIds({
+            viewIds,
+          });
+
+          console.log(viewInfo);
+          res
+            .status(200)
+            .json({ viewInfo: viewInfo.map(({ id, name }) => ({ id, name })) });
+        } catch (err) {
+          console.log(err);
+          return res.sendStatus(500);
+        }
+      },
+
       get_: async (req, res) => {
         const { token, viewId } = req.query;
         const [_, sub, __] = await db.api.auth.verifyToken(token);
@@ -221,7 +255,7 @@ const mw = ((db) => {
           const transactionIds = await db.api.view.getTransactionIdsOfView({
             viewId,
           });
-
+          const viewName = await db.api.view.getViewNameById({ viewId });
           console.log(`[GET /get-view] transactionIds`);
 
           console.log(transactionIds);
@@ -233,7 +267,7 @@ const mw = ((db) => {
 
           const view = await getView(transactions);
 
-          return res.status(200).json({ view, viewId });
+          return res.status(200).json({ view, viewId, viewName });
         } catch (err) {
           return res.sendStatus(501);
         }
@@ -295,7 +329,7 @@ const mw = ((db) => {
       },
       new_: async (req, res) => {
         console.log(`[POST /new-view]`);
-        const { token, transactionIds } = req.body;
+        const { token, transactionIds, viewname: name } = req.body;
 
         console.log({ token, transactionIds });
 
@@ -306,7 +340,7 @@ const mw = ((db) => {
         const username = await db.api.auth.getUsernameOfUserId(sub);
 
         try {
-          const view = await db.api.view.create({ owner: username });
+          const view = await db.api.view.create({ owner: username, name });
 
           const { id: viewId } = view?.dataValues;
 
@@ -336,5 +370,7 @@ app.delete("/view", mw.view.delete);
 app.post("/new-view", mw.view.new_);
 app.get("/all-views", mw.view.getAll);
 app.get("/get-view", mw.view.get_);
+
+app.get("/get-views-of-transaction", mw.view.getOfTransactions);
 
 export default app;
