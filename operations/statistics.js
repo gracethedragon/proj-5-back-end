@@ -26,8 +26,7 @@ const coinmarketConfig = coinmarketcapSandboxConfig;
 export const CurrentPriceChecker = async (transactionDvs) => {
   const PriceChecker = {};
 
-  for await (const { network } of transactionDvs) {
-    const token = network;
+  for await (const { token } of transactionDvs) {
     if (!PriceChecker[token]) {
       console.log(`[PriceChecker ] adding ${token}`);
 
@@ -59,12 +58,15 @@ export const CurrentPriceChecker = async (transactionDvs) => {
  * @returns
  */
 export const getStats = (transactions, priceChecker) => {
-  const coins = ((txs) => {
+  const tokens = ((txs) => {
+    console.log(`[getStats ] making tokens`);
+    console.log(txs);
     const _coins = {};
 
-    for (const { network } of txs) {
-      if (!_coins[network]) {
-        _coins[network] = {
+    for (const { token } of txs) {
+      console.log(`[getState] token ${token}`);
+      if (!_coins[token]) {
+        _coins[token] = {
           outlay: 0,
           qtyLeft: 0,
           qtySold: 0,
@@ -77,9 +79,9 @@ export const getStats = (transactions, priceChecker) => {
   })(transactions);
 
   for (const tx of transactions) {
-    const { transactionType, network, txValue, qty } = tx;
+    const { transactionType, network, token, txValue, qty } = tx;
 
-    const coin = coins[network];
+    const coin = tokens[token];
 
     if (transactionType === "BUY") {
       coin.qtyLeft += qty;
@@ -92,10 +94,11 @@ export const getStats = (transactions, priceChecker) => {
     }
   }
 
-  console.log(`---outlay`);
-  console.log(Object.entries(coins));
-
-  const saleoutlay = Object.entries(coins).reduce(
+  console.log(`---tokens`);
+  console.log(Object.entries(tokens));
+  console.log(`---priceChecker`);
+  console.log(priceChecker);
+  const saleoutlay = Object.entries(tokens).reduce(
     (sum, [_, { qtySold, qtyLeft, outlay }]) => {
       const avgBuyPrice = qtyLeft === 0 ? 0 : outlay / qtyLeft;
       return sum + avgBuyPrice * qtySold;
@@ -103,14 +106,21 @@ export const getStats = (transactions, priceChecker) => {
     0
   );
 
-  const outlay = Object.entries(coins).reduce((sum, [_, { outlay }]) => {
+  const outlay = Object.entries(tokens).reduce((sum, [_, { outlay }]) => {
     return outlay + sum;
   }, 0);
 
-  const unrealrev = Object.entries(coins).reduce((unr, [coin, { qtyLeft }]) => {
-    return unr + priceChecker[coin].value * qtyLeft;
-  }, 0);
-  const actualrev = Object.entries(coins).reduce((s, [coin, { actualrev }]) => {
+  const unrealrev = Object.entries(tokens).reduce(
+    (unr, [token, { qtyLeft }]) => {
+      console.log(
+        `  const unrealrev = Object.entries(tokens).reduce((unr, [token, { qtyLeft }]) => {`
+      );
+      console.log(`  ${token}`);
+      return unr + priceChecker[token].value * qtyLeft;
+    },
+    0
+  );
+  const actualrev = Object.entries(tokens).reduce((s, [_, { actualrev }]) => {
     return s + actualrev;
   }, 0);
 
@@ -144,16 +154,18 @@ const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     transactionHash: hash,
     value,
     network,
+    token,
     type: transactionType,
     date,
     id,
     valueUSD,
     unitCostPrice,
   } = transactionDv;
-  const currentValue = priceChecker[network];
+  const currentValue = priceChecker[token];
 
   return {
     hash,
+    token,
     qty: value,
     id,
     network,
@@ -184,6 +196,7 @@ export const getView = async (transactionDvs) => {
   return { stats, transactions };
 };
 
+const ACCEPTED_ERC20_TOKENS = ["BNB"];
 const getHashDatas = {
   eth: async (transactionHash) => {
     console.log(`[getHashDatas] getHashData - eth`);
@@ -191,19 +204,50 @@ const getHashDatas = {
     const network = "ETH";
 
     try {
+      console.log(`[getHashDatas] getHashData - eth, querying`);
+
       const txData = await axios.get(
         `https://api.blockchair.com/ethereum/dashboards/transaction/${transactionHash}?events=true&erc_20=true&erc_721=true&assets_in_usd=true&effects=true&trace_mempool=true`
       );
-     
 
+      console.log(`[getHashDatas] getHashData - eth, data received`);
+      console.log(`txData.data.data`);
+      console.log(txData.data.data);
+
+      console.log(txData.data.data[transactionHash].transaction);
+
+      console.log(`txData.data.data[transactionHash].layer_2`);
+      console.log(txData.data.data[transactionHash].layer_2);
       const details = txData.data.data[transactionHash].transaction;
-      const { value_usd: valueUSD, time: date, value: qtyStr } = details;
-      const qty = Number(qtyStr) / 1000000000000000000;
+      const erc20 = txData.data.data[transactionHash].layer_2.erc_20;
 
-      return { valueUSD, value: qty, date, token: network, network, transactionHash };
+      if (
+        erc20.length === 0 ||
+        !ACCEPTED_ERC20_TOKENS.includes(erc20[0].token_symbol)
+      ) {
+        console.log(`[getHashDatas] getHashData - eth, layer 2 data not found`);
+        const { value_usd: valueUSD, time: date, value: qtyStr } = details;
+        const qty = Number(qtyStr) / 1000000000000000000;
+
+        return {
+          valueUSD,
+          value: qty,
+          date,
+          token: network,
+          network,
+          transactionHash,
+        };
+      } else {
+        const { value_usd: valueUSD, time: date } = details;
+
+        console.log(`[getHashDatas] getHashData - eth, layer 2 data found`);
+        const firstErcLog = erc20[0];
+        const { token_symbol: token, value_approximate: value } = firstErcLog;
+
+        return { valueUSD, value, date, token, network, transactionHash };
+      }
     } catch (err) {
       console.log(`[getHashDatas] eth error`);
-      console.log(err)
       return null;
     }
   },
@@ -225,7 +269,14 @@ const getHashDatas = {
       const qty = Number(qtyStr) / 100000000;
       const network = "BTC";
 
-      return { valueUSD, value: qty, date, token: network, network, transactionHash };
+      return {
+        valueUSD,
+        value: qty,
+        date,
+        token: network,
+        network,
+        transactionHash,
+      };
     } catch (err) {
       console.log(`[getHashDatas] btc error`);
 
@@ -240,7 +291,7 @@ const getHashDatas = {
  * @returns {HashData}
  */
 export const getHashData = async (transactionHash) => {
-  console.log(`[getHashData]`);
+  console.log(`[getHashData] ${transactionHash}`);
 
   for await (const _getHashData of [getHashDatas.eth, getHashDatas.btc]) {
     const hashData = await _getHashData(transactionHash);

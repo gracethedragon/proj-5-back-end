@@ -139,4 +139,25 @@ describe("transactions", async () => {
     assert.strictEqual(200, getViewsOfTransaction.status);
     assert.strictEqual(2, getViewsOfTransaction.body.viewInfo.length);
   });
+
+  it("[004]Should be able to record another BNB transaction ", async () => {
+    const _res = await getTokenResponse();
+    const token = _res.body.token;
+    const usernameReceived = _res.body.username;
+    assert(!!token);
+    assert(usernameReceived, username);
+
+    // Record 1 BTC transactions - START
+    const resOfTransaction_Buy2 = await request(app)
+      .post("/track-transaction")
+      .set("Accept", "application/json")
+      .send({
+        token,
+        transactionType: "BUY",
+        transactionHash:
+          "0xcbbf97a3376e30039c5784c5386a023550a8294275b7deabad06f0c219097660",
+      });
+
+    assert.strictEqual(200, resOfTransaction_Buy2.status);
+  }).timeout(0);
 });

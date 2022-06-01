@@ -221,7 +221,8 @@ const attachedTransactionApi = (
   const record = async ({
     tracker,
     type,
-    unitCostPrice,token,
+    unitCostPrice,
+    token,
     transactionHash,
     value,
     valueUSD,
@@ -231,7 +232,8 @@ const attachedTransactionApi = (
     console.log(`[Transaction Add Record]`);
     return await TrackedTransaction.create({
       tracker,
-      type,token,
+      type,
+      token,
       transactionHash,
       value,
       valueUSD,

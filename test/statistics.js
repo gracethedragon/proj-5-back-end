@@ -84,6 +84,7 @@ describe("Statistics", () => {
   it("getStats of 2 buy transactions and 1 sell", async () => {
     const buy1 = {
       id: "1",
+      token: "ETH",
       network: "ETH",
       createdAt: Date(),
       updatedAt: Date(),
@@ -100,6 +101,7 @@ describe("Statistics", () => {
 
     const buy2 = {
       id: "2",
+      token: "ETH",
       network: "ETH",
       createdAt: Date(),
       updatedAt: Date(),
@@ -115,6 +117,7 @@ describe("Statistics", () => {
     const sell1 = {
       id: "3",
       network: "ETH",
+      token: "ETH",
       createdAt: Date(),
       updatedAt: Date(),
       qty: 80,
