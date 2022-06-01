@@ -20,27 +20,31 @@ const coinmarketcapDvlpConfig = {
 const coinmarketConfig = coinmarketcapSandboxConfig;
 
 /**
+ * @param {TransactionDBColumns}
  * @returns {Promise<PriceChecker>}
  */
-export const CurrentPriceChecker = async () => {
+export const CurrentPriceChecker = async (transactionDvs) => {
   const PriceChecker = {};
 
-  const response = await axios.get(`${coinmarketConfig.urls.prices}`, {
-    headers: { "X-CMC_PRO_API_KEY": coinmarketConfig.key },
-    params: { symbol: "ETH", convert: "USD" },
-  });
-  const { data } = response;
-  const { data: prices } = data;
+  for await (const { network } of transactionDvs) {
+    const token = network;
+    if (!PriceChecker[token]) {
+      console.log(`[PriceChecker ] adding ${token}`);
 
-  PriceChecker.ETH = {
-    value: prices["ETH"][0]["quote"]["USD"].price,
-    date: prices["ETH"][0]["quote"]["USD"].last_updated,
-  };
+      const response = await axios.get(`${coinmarketConfig.urls.prices}`, {
+        headers: { "X-CMC_PRO_API_KEY": coinmarketConfig.key },
+        params: { symbol: token, convert: "USD" },
+      });
 
-  PriceChecker.BTC = {
-    value: 0,
-    date: null,
-  };
+      const { data } = response;
+      const { data: prices } = data;
+
+      PriceChecker[token] = {
+        value: prices[token][0]["quote"]["USD"].price,
+        date: prices[token][0]["quote"]["USD"].last_updated,
+      };
+    }
+  }
 
   console.log(`[PriceChecker]`);
   console.log(PriceChecker);
@@ -55,21 +59,22 @@ export const CurrentPriceChecker = async () => {
  * @returns
  */
 export const getStats = (transactions, priceChecker) => {
-  const coins = {
-    ETH: {
-      outlay: 0,
-      qtyLeft: 0,
-      qtySold: 0,
-      actualrev: 0,
-    },
+  const coins = ((txs) => {
+    const _coins = {};
 
-    BTC: {
-      outlay: 0,
-      qtyLeft: 0,
-      qtySold: 0,
-      actualrev: 0,
-    },
-  };
+    for (const { network } of txs) {
+      if (!_coins[network]) {
+        _coins[network] = {
+          outlay: 0,
+          qtyLeft: 0,
+          qtySold: 0,
+          actualrev: 0,
+        };
+      }
+    }
+
+    return _coins;
+  })(transactions);
 
   for (const tx of transactions) {
     const { transactionType, network, txValue, qty } = tx;
@@ -171,7 +176,7 @@ const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
 export const getView = async (transactionDvs) => {
   console.log(`TransactionDBColumns`);
   console.log(transactionDvs);
-  const priceChecker = await CurrentPriceChecker();
+  const priceChecker = await CurrentPriceChecker(transactionDvs);
 
   const transactions = transactionDvsToFrondEnd(transactionDvs, priceChecker);
   const stats = getStats(transactions, priceChecker);

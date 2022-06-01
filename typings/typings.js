@@ -89,4 +89,5 @@
  * @property {TransactionHash} transactionHash
  * @property {TransactionType} type
  * @property {number} unitCostPrice
+ * @property {string} network
  */
