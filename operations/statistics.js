@@ -14,10 +14,10 @@ const coinmarketcapDvlpConfig = {
   urls: {
     prices: "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest",
   },
-  key: "CAT-FISH-DOG", // this should be invalid
+  key: "32288ef2-77bd-4808-8e19-2015887e2738", // this should be invalid
 };
 
-const coinmarketConfig = coinmarketcapSandboxConfig;
+const coinmarketConfig = coinmarketcapDvlpConfig;
 
 /**
  * @param {TransactionDBColumns}
@@ -161,12 +161,14 @@ const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     valueUSD,
     unitCostPrice,
   } = transactionDv;
-  const currentValue = priceChecker[token];
+  const currentUnitPrice = priceChecker[token];
+  const qty = value
+  const currentValue = {date: currentUnitPrice.date, value: currentUnitPrice.value*qty }
 
   return {
     hash,
     token,
-    qty: value,
+    qty,
     id,
     network,
     unitCostPrice,

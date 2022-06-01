@@ -1,6 +1,6 @@
 export default {
   development: {
-    username: "noellim",
+    username: "moondb",
     password: null,
     database: "p5",
     host: "127.0.0.1",

@@ -21,6 +21,7 @@ describe("Statistics", () => {
     const buy1 = {
       id: "1",
       network: "ETH",
+      token:"ETH",
       createdAt: Date(),
       updatedAt: Date(),
       qty: 66,
@@ -37,6 +38,7 @@ describe("Statistics", () => {
     const buy2 = {
       id: "2",
       network: "ETH",
+      token:"ETH",
       createdAt: Date(),
       updatedAt: Date(),
       qty: 54.54,
@@ -51,6 +53,7 @@ describe("Statistics", () => {
     const buy3 = {
       id: "3",
       network: "ETH",
+      token:"ETH",
       createdAt: Date(),
       updatedAt: Date(),
       qty: 80,
