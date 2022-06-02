@@ -148,7 +148,8 @@ const mw = ((db) => {
           token,
           transactionType: type,
           transactionHash,
-          unitCostPrice,
+          unitCostDate
+          //unitCostPrice,
         } = req.body;
         try {
           const [_, sub, __] = await db.api.auth.verifyToken(token);
@@ -372,5 +373,10 @@ app.get("/all-views", mw.view.getAll);
 app.get("/get-view", mw.view.get_);
 
 app.get("/get-views-of-transaction", mw.view.getOfTransactions);
+// TO DO
+app.post("/edit-viewname", (req,res)=>{
+  const { token, viewId, viewname: name } = req.body;
+  return res.status(400)
+})
 
 export default app;

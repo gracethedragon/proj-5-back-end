@@ -388,7 +388,7 @@ const attachViewApi = ({ User, TrackedTransaction, View, ViewOwnership }) => {
   };
 
   const getView = async ({ viewId }) => {
-    return (await View.findAll({ viewId })).map(({ dataValues }) => dataValues);
+    return (await View.findAll({ where: {viewId} })).map(({ dataValues }) => dataValues);
   };
 
   const getViewNameById = async ({ viewId }) => {
