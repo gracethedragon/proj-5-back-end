@@ -64,8 +64,6 @@ export const CurrentPriceChecker = async (transactionDvs) => {
  */
 export const getStats = (transactions, priceChecker) => {
   const tokens = ((txs) => {
-    console.log(`[getStats ] making tokens`);
-    console.log(txs);
     const _coins = {};
 
     for (const { token } of txs) {
@@ -84,8 +82,7 @@ export const getStats = (transactions, priceChecker) => {
   })(transactions);
 
   for (const tx of transactions) {
-    const { transactionType, network, token, txValue, qty } = tx;
-
+    const { transactionType, token, txValue, qty } = tx;
     const coin = tokens[token];
 
     if (transactionType === "BUY") {
@@ -99,10 +96,6 @@ export const getStats = (transactions, priceChecker) => {
     }
   }
 
-  console.log(`---tokens`);
-  console.log(Object.entries(tokens));
-  console.log(`---priceChecker`);
-  console.log(priceChecker);
   const saleoutlay = Object.entries(tokens).reduce(
     (sum, [_, { qtySold, qtyLeft, outlay }]) => {
       const avgBuyPrice = qtyLeft === 0 ? 0 : outlay / qtyLeft;
@@ -117,9 +110,6 @@ export const getStats = (transactions, priceChecker) => {
 
   const unrealrev = Object.entries(tokens).reduce(
     (unr, [token, { qtyLeft }]) => {
-      console.log(
-        `  const unrealrev = Object.entries(tokens).reduce((unr, [token, { qtyLeft }]) => {`
-      );
       console.log(`  ${token}`);
       return unr + priceChecker[token].value * qtyLeft;
     },
@@ -129,6 +119,14 @@ export const getStats = (transactions, priceChecker) => {
     return s + actualrev;
   }, 0);
 
+  const totalBoughtValue = transactions.reduce(
+    (acc, { boughtValue }) => acc + boughtValue,
+    0
+  );
+  const totalSoldValue = transactions.reduce(
+    (acc, { soldValue }) => acc + soldValue,
+    0
+  );
   return {
     outlay,
     unrealrev,
@@ -136,6 +134,8 @@ export const getStats = (transactions, priceChecker) => {
     unrealgl: unrealrev === 0 ? unrealrev : (unrealrev - outlay) / unrealrev,
     realgl: actualrev === 0 ? actualrev : (actualrev - saleoutlay) / actualrev,
     actualrev,
+    totalSoldValue,
+    totalBoughtValue,
   };
 };
 
@@ -185,6 +185,7 @@ export const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
 
       return { boughtData, soldData };
     } else if (_txType === "SELL") {
+      console.log([_boughtDate, _boughtUnitPrice, _boughtValue]);
       const boughtData = [_boughtDate, _boughtUnitPrice, _boughtValue];
 
       const soldData = [date, valueUSD / value, valueUSD];
@@ -195,7 +196,7 @@ export const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
   const [boughtDate, boughtUnitPrice, boughtValue] = boughtData;
   const [soldDate, soldUnitPrice, soldValue] = soldData;
 
-  return {
+  const tx = {
     hash,
     boughtDate,
     token,
@@ -212,6 +213,8 @@ export const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     txValue,
     currentValue,
   };
+  console.log(tx);
+  return tx;
 };
 
 /**

@@ -25,3 +25,5 @@ export const httpGetAllTransactions = async (app, token) =>
     .query({
       token,
     });
+
+export const to2DecimalPlace = (n) => Number(n.toFixed(2));
