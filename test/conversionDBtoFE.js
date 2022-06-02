@@ -29,8 +29,8 @@ const [getTokenResponse, getToken] = getTokenResponseFns(
 const transactionDateOfBuy1 = new Date("May-18-2022").toUTCString();
 
 const USDatTimeOfTransaction = 1047.59;
-/** @type {TransactionDBColumns} */
-const buy1 = {
+/** @type {TransactionDV} */
+const buy1DV = {
   id: 1,
   createdAt: Date(),
   updatedAt: Date(),
@@ -66,8 +66,8 @@ describe("[mocha conversion]", async () => {
     assert.strictEqual(res.status, 200);
   });
 
-  it("should convert nicely", () => {
-    const buy1FE = transactionDvToFrondEnd(buy1, cpc);
+  it("buy1FE should convert nicely", () => {
+    const buy1FE = transactionDvToFrondEnd(buy1DV, cpc);
 
     assert.strictEqual(buy1FE.qty, 0.5);
     assert.strictEqual(buy1FE.boughtDate, transactionDateOfBuy1);
@@ -76,4 +76,7 @@ describe("[mocha conversion]", async () => {
     assert.strictEqual(buy1FE.soldValue, prices.ETH.value * buy1FE.qty);
     assert.strictEqual(buy1FE.soldUnitPrice, prices.ETH.value);
   });
+
+
+
 }).timeout(0);

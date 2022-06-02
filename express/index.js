@@ -168,7 +168,7 @@ const mw = ((db) => {
             transactionToSubmit
           );
 
-          /** @type {TransactionDBColumns} */
+          /** @type {TransactionDV} */
           const dataValues = trackedTransaction.dataValues;
 
           const view = await getView([dataValues]);

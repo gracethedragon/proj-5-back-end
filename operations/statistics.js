@@ -20,7 +20,7 @@ const coinmarketcapDvlpConfig = {
 const coinmarketConfig = coinmarketcapDvlpConfig;
 
 /**
- * @param {TransactionDBColumns}
+ * @param {TransactionDV}
  * @returns {Promise<PriceChecker>}
  */
 export const CurrentPriceChecker = async (transactionDvs) => {
@@ -150,7 +150,7 @@ const transactionDvsToFrondEnd = (transactionDvs, priceChecker) =>
 
 /**
  *
- * @param {TransactionDBColumns} transactionDv
+ * @param {TransactionDV} transactionDv
  * @param {PriceChecker} priceChecker
  * @returns {TransactionFE}
  */
@@ -213,11 +213,11 @@ export const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
 
 /**
  *
- * @param {TransactionDBColumns} transactionDvs
+ * @param {TransactionDV} transactionDvs
  * @returns {TransactionView}
  */
 export const getView = async (transactionDvs) => {
-  console.log(`TransactionDBColumns`);
+  console.log(`TransactionDV`);
   console.log(transactionDvs);
   const priceChecker = await CurrentPriceChecker(transactionDvs);
 

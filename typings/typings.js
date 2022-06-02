@@ -78,7 +78,7 @@
  */
 
 /**
- * @typedef {Object} TransactionDBColumns
+ * @typedef {Object} TransactionDV
  * @property {number} id
  * @property {Date} createdAt
  * @property {Date} updatedAt
