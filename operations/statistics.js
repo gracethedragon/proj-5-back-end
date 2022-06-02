@@ -197,6 +197,7 @@ export const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     soldDate,
     id,
     boughtValue,
+    soldUnitPrice,
     network,
     unitCostPrice,
     boughtUnitPrice,

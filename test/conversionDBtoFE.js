@@ -74,5 +74,6 @@ describe("[mocha conversion]", async () => {
     assert.strictEqual(buy1FE.boughtValue, USDatTimeOfTransaction);
     assert.strictEqual(buy1FE.soldDate, dateNow);
     assert.strictEqual(buy1FE.soldValue, prices.ETH.value * buy1FE.qty);
+    assert.strictEqual(buy1FE.soldUnitPrice, prices.ETH.value);
   });
 }).timeout(0);
