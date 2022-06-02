@@ -48,7 +48,12 @@ export const CurrentPriceChecker = async (transactionDvs) => {
   console.log(`[PriceChecker]`);
   console.log(PriceChecker);
 
-  return PriceChecker;
+  return {
+    PriceChecker,
+    getPrice: (token) => {
+      return PriceChecker[token];
+    },
+  };
 };
 
 /**
@@ -149,7 +154,7 @@ const transactionDvsToFrondEnd = (transactionDvs, priceChecker) =>
  * @param {PriceChecker} priceChecker
  * @returns {TransactionFE}
  */
-const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
+export const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
   const {
     transactionHash: hash,
     value,
@@ -162,18 +167,41 @@ const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     unitCostPrice,
   } = transactionDv;
   const currentUnitPrice = priceChecker[token];
-  const qty = value
-  const currentValue = {date: currentUnitPrice.date, value: currentUnitPrice.value*qty }
+  const qty = value;
+  const currentValue = {
+    date: currentUnitPrice.date,
+    value: currentUnitPrice.value * qty,
+  };
+  const txValue = { date, value: valueUSD };
+
+  const { boughtData, soldData } = ((_txType) => {
+    if (_txType === "BUY") {
+      const boughtData = [date, unitCostPrice, valueUSD];
+
+      const sellPrice = priceChecker[token];
+      const soldData = [sellPrice.date, sellPrice.value, sellPrice.value * qty];
+
+      return { boughtData, soldData };
+    }
+  })(transactionType);
+
+  const [boughtDate, boughtUnitPrice, boughtValue] = boughtData;
+  const [soldDate, soldUnitPrice, soldValue] = soldData;
 
   return {
     hash,
+    boughtDate,
     token,
+    soldValue,
     qty,
+    soldDate,
     id,
+    boughtValue,
     network,
     unitCostPrice,
+    boughtUnitPrice,
     transactionType,
-    txValue: { date, value: valueUSD },
+    txValue,
     currentValue,
   };
 };

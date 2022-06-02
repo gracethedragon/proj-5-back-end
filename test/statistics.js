@@ -2,7 +2,7 @@ import assert from "assert";
 
 import { getStats } from "../operations/statistics.js";
 
-const cpc = {
+const prices = {
   ETH: {
     date: Date(),
     value: 1745.29,
@@ -10,35 +10,41 @@ const cpc = {
 
   BTC: {
     date: Date(),
-
     value: 1,
   },
+};
+
+const cpc = {
+  ...prices,
+  getPrices: (token) => prices[token],
+};
+
+/** @type {TransactionFE} */
+const buy1 = {
+  id: 1,
+  createdAt: Date(),
+  updatedAt: Date(),
+  network: "ETH",
+  token: "ETH",
+  qty: 0.5,
+  txValue: {
+    date: new Date("May-18-2022").toUTCString(),
+    value: 2095.17888479672,
+  },
+  cuurentValue: {},
+
+  hash: "0xf9e10f158459c93624f8b76b81649c4911d6abb846f89d68b59c3ff4a4163dd9",
+  transactionType,
 };
 
 describe("Statistics", () => {
   it("getStats of Three buy transactions", async () => {
     const transactionType = "BUY";
-    const buy1 = {
-      id: "1",
-      network: "ETH",
-      token:"ETH",
-      createdAt: Date(),
-      updatedAt: Date(),
-      qty: 66,
-      txValue: {
-        date: new Date("May-23-2022 06:34:56").toUTCString(),
-        value: 130066.2,
-      },
-      cuurentValue: {},
-
-      hash: "0xf9e10f158459c93624f8b76b81649c4911d6abb846f89d68b59c3ff4a4163dd9",
-      transactionType,
-    };
 
     const buy2 = {
       id: "2",
       network: "ETH",
-      token:"ETH",
+      token: "ETH",
       createdAt: Date(),
       updatedAt: Date(),
       qty: 54.54,
@@ -53,7 +59,7 @@ describe("Statistics", () => {
     const buy3 = {
       id: "3",
       network: "ETH",
-      token:"ETH",
+      token: "ETH",
       createdAt: Date(),
       updatedAt: Date(),
       qty: 80,

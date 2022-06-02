@@ -249,8 +249,6 @@ const mw = ((db) => {
           return res.sendStatus(401);
         }
 
-        // TODO Security Check: Only view owner can retrieve view
-
         try {
           const transactionIds = await db.api.view.getTransactionIdsOfView({
             viewId,

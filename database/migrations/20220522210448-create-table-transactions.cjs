@@ -18,6 +18,10 @@ module.exports = {
         allowNull: false,
         type: DataTypes.DATE,
       },
+      transaction_hash: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       tracker: {
         type: DataTypes.STRING,
         references: {
@@ -33,35 +37,28 @@ module.exports = {
         type: DataTypes.DOUBLE,
         allowNull: false,
       },
+      date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
       valueUSD: {
         type: DataTypes.DOUBLE,
+        allowNull: false,
+      },
+      token: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      type: {
+        type: DataTypes.ENUM(["BUY", "SELL"]),
         allowNull: false,
       },
       network: {
         type: DataTypes.ENUM(["ETH", "BTC"]),
         allowNull: false,
       },
-
-      token: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-
-      date: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
       unit_cost_price: {
         type: DataTypes.DOUBLE,
-      },
-
-      type: {
-        type: DataTypes.ENUM(["BUY", "SELL"]),
-        allowNull: false,
-      },
-      transaction_hash: {
-        type: DataTypes.STRING,
-        allowNull: false,
       },
     });
   },

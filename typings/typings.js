@@ -32,7 +32,7 @@
  *  @property {number} id
  * @property  {string} network
  * @property  {string} transactionType
- * @property  {TxValue} txValue
+ * @property  {TxValue} txValue value at the point of transaction
  * @property  {Value} currentValue
  * @property  {number} unitCostPrice
  */
@@ -82,12 +82,13 @@
  * @property {number} id
  * @property {Date} createdAt
  * @property {Date} updatedAt
- * @property {Tracker} tracker
- * @property {number} value
- * @property {Date} date
+ * @property {TransactionHash} transactionHash transaction hash
+ * @property {Tracker} tracker username of tracker
+ * @property {number} value qty at the point of transaction
+ * @property {Date} date date of transaction
  * @property {number} valueUSD
- * @property {TransactionHash} transactionHash
- * @property {TransactionType} type
+ * @property {string} token token type
+ * @property {TransactionType} type type of transaction
  * @property {number} unitCostPrice
  * @property {string} network
  */
