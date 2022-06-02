@@ -104,6 +104,27 @@ describe("transactions", async () => {
     } = resOfTransaction_Buy1.body.transactions[0];
     assert.strictEqual(token_buy1, "ETH");
 
+    "174ef2e803856fb2ac058b5d1a7077b033d9c5e588256c3bdb58312d706e1264";
+
+
+    const resOfTransaction_Buy2 = await request(app)
+    .post("/track-transaction")
+    .set("Accept", "application/json")
+    .send({
+      token,
+      transactionType: "BUY",
+      transactionHash:
+        "174ef2e803856fb2ac058b5d1a7077b033d9c5e588256c3bdb58312d706e1264",
+    });
+
+  assert.strictEqual(200, resOfTransaction_Buy2.status);
+
+  const {
+    token: token_buy2,
+  } = resOfTransaction_Buy2.body.transactions[0];
+  assert.strictEqual(token_buy2, "BTC");
+
+
     return;
 
     const resOfTransaction_003_Sell = await request(app)

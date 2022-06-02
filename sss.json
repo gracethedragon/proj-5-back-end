@@ -2769,6 +2769,8 @@
     "symbol": "sweep",
     "name": "BAYC History -The Great Floor Sweep"
   },
+  { "id": "bitcoin", "symbol": "btc", "name": "Bitcoin" },
+
   { "id": "bayc-vault-nftx", "symbol": "bayc", "name": "BAYC Vault (NFTX)" },
   { "id": "bb-gaming", "symbol": "bb", "name": "BB Gaming" },
   { "id": "bbscoin", "symbol": "bbs", "name": "BBSCoin" },

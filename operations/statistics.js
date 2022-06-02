@@ -8,7 +8,7 @@ const CoinGeckoClient = new CoinGecko();
 const idsOfToken = await [
   { id: "tether", symbol: "usdt", name: "Tether" },
   { id: "binancecoin", symbol: "bnb", name: "BNB" },
-
+  { id: "bitcoin", symbol: "btc", name: "Bitcoin" },
   { id: "axie-infinity", symbol: "axs", name: "Axie Infinity" },
   { id: "uniswap", symbol: "uni", name: "Uniswap" },
   { id: "kucoin-shares", symbol: "kcs", name: "KuCoin" },
@@ -346,7 +346,6 @@ const getHashDatas = {
         return { valueUSD, value, date, token, network, transactionHash };
       }
     } catch (err) {
-      console.log(err);
       console.log(`[getHashDatas] eth error`);
       return null;
     }
