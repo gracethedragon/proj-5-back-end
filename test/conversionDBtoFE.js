@@ -80,15 +80,7 @@ const cpc = {
   getPrice: (token) => prices[token],
 };
 
-describe("[mocha conversion]", async () => {
-  it("should register user", async () => {
-    const res = await request(app)
-      .post("/register")
-      .set("Accept", "application/json")
-      .send({ email: username, password, password2: password });
-
-    assert.strictEqual(res.status, 200);
-  });
+describe("[mocha conversion DV to FE] Core (Wihout HTTP)", async () => {
 
   it("buy1DV should convert nicely", () => {
     const buy1FE = transactionDvToFrondEnd(buy1DV, cpc);
@@ -115,7 +107,7 @@ describe("[mocha conversion]", async () => {
     assert.strictEqual(sell3FE.soldUnitPrice, sell3DV.valueUSD / sell3DV.value);
   });
 
-  it("viewOfBuy1AndSell3 stats", () => {
+  it("viewOfBuy1and1Sell stats", () => {
     const buy1FE = transactionDvToFrondEnd(buy1DV, cpc);
     const sell3FE = transactionDvToFrondEnd(sell3DV, cpc);
 
@@ -131,3 +123,22 @@ describe("[mocha conversion]", async () => {
     );
   });
 }).timeout(0);
+
+
+
+
+describe("" , async () => {
+
+  it("should register user", async () => {
+    const res = await request(app)
+      .post("/register")
+      .set("Accept", "application/json")
+      .send({ email: username, password, password2: password });
+
+    assert.strictEqual(res.status, 200);
+  });
+
+
+
+
+})

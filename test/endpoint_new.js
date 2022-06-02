@@ -55,7 +55,6 @@ describe("User Story 1+ ", async () => {
 });
 
 describe("transactions", async () => {
-  return;
   it("Should not record malformed transaction hash", async () => {
     const token = await getToken();
 
@@ -70,13 +69,26 @@ describe("transactions", async () => {
           "0xf9e10f158459c93624f8b76b81649c4911d6abb846f89d68b59c3ff4a4163dd9",
       });
     assert.strictEqual(400, resOfMalformedRequest.status);
+
+
+        // Malformed Request
+    const resOfMalformedRequest2 = await request(app)
+      .post("/track-transaction")
+      .set("Accept", "application/json")
+      .send({
+        token,
+        transactionType: "asdfkusgadfasdf",
+        transactionHash:
+          "0x69fc14a5f3bd93253a4446e7fb70ded1b25ab1f7fdb525b8180ef944f9b56c73",
+      });
+    assert.strictEqual(400, resOfMalformedRequest.status);
+
+
   }).timeout(0);
-  it("[001]Should be able to record a transaction ", async () => {
-    // Login
+  it("[001]Should be able to record transactions and add into a view", async () => {
+
 
     const token = await getToken();
-
-    // Record 3 transactions - START
     const resOfTransaction_Buy1 = await request(app)
       .post("/track-transaction")
       .set("Accept", "application/json")
@@ -84,8 +96,54 @@ describe("transactions", async () => {
         token,
         transactionType: "BUY",
         transactionHash:
-          "0x69fc14a5f3bd93253a4446e7fb70ded1b25ab1f7fdb525b8180ef944f9b56c73",
+          "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
       });
+
+    assert.strictEqual(200, resOfTransaction_Buy1.status);
+
+    const {txValue,token: token_buy1, currentValue, id:id_buy1} = resOfTransaction_Buy1.body.transactions[0]
+    assert.strictEqual(token_buy1, "ETH");
+
+
+
+
+
+
+    const resOfTransaction_003_Sell = await request(app)
+    .post("/track-transaction")
+    .set("Accept", "application/json")
+    .send({
+      token,
+
+      boughtDate: new Date("April-20-2020").toUTCString(),
+      boughtUnitPrice: 1300,
+      transactionType: "SELL",
+      transactionHash:
+        "0x57bf07e61b2b8d48bb4a3a4a094e0d614e9a461e066d8146056aeb5a8adf7611",
+    });
+
+    assert.strictEqual(200, resOfTransaction_Buy1.status);
+
+
+    const { id:id_sell3} = resOfTransaction_003_Sell.body.transactions[0]
+
+    console.log(resOfTransaction_003_Sell.body.transactions[0])
+    assert.strictEqual(id_sell3, "SHIB");
+
+
+    
+  }).timeout(0);
+
+  it("------ ", async () => {
+    // Login
+
+    const token = await getToken();
+
+    // Record 3 transactions - START
+
+
+  return;
+
 
     const resOfTransaction_Buy2 = await request(app)
       .post("/track-transaction")
@@ -108,7 +166,6 @@ describe("transactions", async () => {
           "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
       });
 
-    assert.strictEqual(200, resOfTransaction_Buy1.status);
     assert.strictEqual(200, resOfTransaction_Buy2.status);
     assert.strictEqual(200, resOfTransaction_Sell.status);
 

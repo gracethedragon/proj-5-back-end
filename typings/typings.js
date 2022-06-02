@@ -7,9 +7,10 @@
  *
  * @typedef {Object} HashData
  * @property {number} valueUSD
- * @property {number} qty Amount of Coins
+ * @property {number} value Amount of Coins
  * @property {Date} date
  * @property {Network} network
+ * @property {string} token
  * @property {TransactionHash} transactionHash
  */
 
@@ -41,6 +42,7 @@
  *
  * @typedef {Object} PriceChecker
  * @property {Value} ETH
+ * @property {Function} getPrice
  */
 
 /**

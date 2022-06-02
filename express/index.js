@@ -4,7 +4,7 @@ import { dbConfig, systemConfig } from "../config/index.js";
 
 import connectSequelize from "../database/connection/index.js";
 import initDatabase from "../database/index.js";
-import { getHashData } from "../operations/statistics.js";
+import { getHashData, getGeckoUSDPrice } from "../operations/statistics.js";
 import { getView } from "../operations/statistics.js";
 
 import "../typings/typings.js";
@@ -148,22 +148,43 @@ const mw = ((db) => {
           token,
           transactionType: type,
           transactionHash,
-          boughtUnitPrice,
+          boughtDate,
         } = req.body;
         try {
           const [_, sub, __] = await db.api.auth.verifyToken(token);
           /** @type {Tracker} */
           const username = await db.api.auth.getUsernameOfUserId(sub);
-
           const hashData = await getHashData(transactionHash);
+          if (!hashData) {
+            return res.status(400).sendStatus({ msg: "insufficient hash data" });
+          }
+          const boughtData = await (async (_type) => {
+            if (_type === "BUY") {
+              return {
+                boughtDate: hashData.date,
+                boughtValue: hashData.valueUSD,
+                boughtUnitPrice: hashData.valueUSD / hashData.value,
+              };
+            } else if (_type === "SELL"){
+              const boughtUnitPrice = await getGeckoUSDPrice(boughtDate, hashData.token)
 
+              if(!boughtUnitPrice){
+                throw Error("No bought unit price found")
+              }
+              return {
+                boughtDate,boughtUnitPrice,boughtValue : boughtUnitPrice * boughtDate
+              };
+            }
+          })(type);
+          
           const transactionToSubmit = {
             tracker: username,
             type,
-            boughtUnitPrice,
             ...hashData,
+            ...boughtData,
           };
-
+          console.log(`[transactionToSubmit]`)
+          console.log(transactionToSubmit)
           const trackedTransaction = await db.api.transaction.record(
             transactionToSubmit
           );

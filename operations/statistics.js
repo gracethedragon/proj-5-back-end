@@ -2,6 +2,56 @@ import axios from "axios";
 
 import "../typings/typings.js";
 
+import CoinGecko from "coingecko-api";
+const CoinGeckoClient = new CoinGecko();
+
+
+const idsOfToken = await [
+  { id: "tether", symbol: "usdt", name: "Tether" },
+  { id: "axie-infinity", symbol: "axs", name: "Axie Infinity" },
+  { id: "uniswap", symbol: "uni", name: "Uniswap" },
+  { id: "kucoin-shares", symbol: "kcs", name: "KuCoin" },
+  { id: "the-sandbox", symbol: "sand", name: "The Sandbox" },
+  { id: "decentraland", symbol: "mana", name: "Decentraland" },
+  { id: "aave", symbol: "aave", name: "Aave" },
+  { id: "frax", symbol: "frax", name: "Frax" },
+  { id: "hex", symbol: "hex", name: "HEX" },
+  { id: "huobi-btc", symbol: "hbtc", name: "Huobi BTC" },
+  { id: "paxos-standard", symbol: "usdp", name: "Pax Dollar" },
+  { "id": "ethereum", "symbol": "eth", "name": "Ethereum" },
+  { id: "fantom", symbol: "ftm", name: "Fantom" },
+  { id: "usd-coin", symbol: "usdc", name: "USD Coin" },
+  { id: "shiba-inu", symbol: "shib", name: "Shiba Inu" },
+  { id: "crypto-com-chain", symbol: "cro", name: "Cronos" },
+  { id: "matic-network", symbol: "matic", name: "Polygon" },
+  { id: "chainlink", symbol: "link", name: "Chainlink" },
+  { id: "okb", symbol: "okb", name: "OKB" },
+  { id: "the-graph", symbol: "grt", name: "The Graph" },
+  { id: "waves", symbol: "waves", name: "Waves" },
+  { id: "true-usd", symbol: "tusd", name: "TrueUSD" },
+  { id: "wrapped-bitcoin", symbol: "wbtc", name: "Wrapped Bitcoin" },
+  { id: "dai", symbol: "dai", name: "Dai" },
+].reduce(async (obj, { id, symbol }) => {
+  const SYM = symbol.toUpperCase();
+  return { ...(await obj), [SYM]: id };
+}, {});
+
+
+
+export const getGeckoUSDPrice = async (_date, token) => {
+
+  // const date = _date
+  console.log(`[getGeckoUSDPrice] ${date} ${_date} ${token} ${idsOfToken[token]}`)
+  const date = _date.toLocaleDateString("es-CL").toString()
+  console.log(`[getGeckoUSDPrice] ${date} `)
+  const data = await CoinGeckoClient.coins.fetchHistory(idsOfToken[token], {
+    date,
+  });
+  console.log(data)
+
+  return data?.data?.market_data?.current_price?.usd;
+};
+
 // Config
 const coinmarketcapSandboxConfig = {
   urls: {
@@ -24,6 +74,10 @@ const coinmarketConfig = coinmarketcapDvlpConfig;
  * @returns {Promise<PriceChecker>}
  */
 export const CurrentPriceChecker = async (transactionDvs) => {
+
+  console.log(`[cpc] transactionDvs`)
+
+  console.log(transactionDvs)
   const PriceChecker = {};
 
   for await (const { token } of transactionDvs) {
@@ -51,6 +105,10 @@ export const CurrentPriceChecker = async (transactionDvs) => {
   return {
     PriceChecker,
     getPrice: (token) => {
+      if(!PriceChecker[token]) {
+
+        console.log("Price Checker cannot get price")
+      }
       return PriceChecker[token];
     },
   };
@@ -111,7 +169,7 @@ export const getStats = (transactions, priceChecker) => {
   const unrealrev = Object.entries(tokens).reduce(
     (unr, [token, { qtyLeft }]) => {
       console.log(`  ${token}`);
-      return unr + priceChecker[token].value * qtyLeft;
+      return unr + priceChecker.getPrice(token).value * qtyLeft;
     },
     0
   );
@@ -168,7 +226,7 @@ export const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     valueUSD,
     boughtUnitPrice: _boughtUnitPrice,
   } = transactionDv;
-  const currentUnitPrice = priceChecker[token];
+  const currentUnitPrice = priceChecker.getPrice(token);
   const qty = value;
   const currentValue = {
     date: currentUnitPrice.date,
@@ -213,7 +271,6 @@ export const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     txValue,
     currentValue,
   };
-  console.log(tx);
   return tx;
 };
 
@@ -228,7 +285,6 @@ export const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
  */
 export const getView = async (transactionDvs) => {
   console.log(`TransactionDV`);
-  console.log(transactionDvs);
   const priceChecker = await CurrentPriceChecker(transactionDvs);
 
   const transactions = transactionDvsToFrondEnd(transactionDvs, priceChecker);
@@ -237,7 +293,6 @@ export const getView = async (transactionDvs) => {
   return { stats, transactions };
 };
 
-const ACCEPTED_ERC20_TOKENS = ["BNB"];
 const getHashDatas = {
   eth: async (transactionHash) => {
     console.log(`[getHashDatas] getHashData - eth`);
@@ -245,26 +300,15 @@ const getHashDatas = {
     const network = "ETH";
 
     try {
-      console.log(`[getHashDatas] getHashData - eth, querying`);
-
       const txData = await axios.get(
         `https://api.blockchair.com/ethereum/dashboards/transaction/${transactionHash}?events=true&erc_20=true&erc_721=true&assets_in_usd=true&effects=true&trace_mempool=true`
       );
 
-      console.log(`[getHashDatas] getHashData - eth, data received`);
-      console.log(`txData.data.data`);
-      console.log(txData.data.data);
-
-      console.log(txData.data.data[transactionHash].transaction);
-
-      console.log(`txData.data.data[transactionHash].layer_2`);
-      console.log(txData.data.data[transactionHash].layer_2);
       const details = txData.data.data[transactionHash].transaction;
       const erc20 = txData.data.data[transactionHash].layer_2.erc_20;
 
       if (
-        erc20.length === 0 ||
-        !ACCEPTED_ERC20_TOKENS.includes(erc20[0].token_symbol)
+        erc20.length === 0 
       ) {
         console.log(`[getHashDatas] getHashData - eth, layer 2 data not found`);
         const { value_usd: valueUSD, time: date, value: qtyStr } = details;
@@ -280,11 +324,13 @@ const getHashDatas = {
         };
       } else {
         const { value_usd: valueUSD, time: date } = details;
-
         console.log(`[getHashDatas] getHashData - eth, layer 2 data found`);
         const firstErcLog = erc20[0];
-        const { token_symbol: token, value_approximate: value } = firstErcLog;
 
+        const { token_symbol: token, value_approximate: value } = firstErcLog;
+        if(token === ""){
+          return null;
+        }
         return { valueUSD, value, date, token, network, transactionHash };
       }
     } catch (err) {
@@ -337,9 +383,9 @@ export const getHashData = async (transactionHash) => {
   for await (const _getHashData of [getHashDatas.eth, getHashDatas.btc]) {
     const hashData = await _getHashData(transactionHash);
     if (hashData) {
-      console.log(hashData);
-
       return hashData;
     }
   }
+
+  return null;
 };

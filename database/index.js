@@ -226,13 +226,13 @@ const attachedTransactionApi = (
     transactionHash,
     value,
     valueUSD,
-    network,
-    date,
+    network,boughtDate,
+    date,boughtValue
   }) => {
     console.log(`[Transaction Add Record]`);
     return await TrackedTransaction.create({
       tracker,
-      type,
+      type,boughtValue,boughtDate,
       token,
       transactionHash,
       value,
