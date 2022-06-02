@@ -1,1 +1,973 @@
-curl -H "X-CMC_PRO_API_KEY: b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c" -H "Accept: application/json" -d "symbol=ETH&convert=USD" -G https://sandbox-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest
+}
+[transactionDbToFrontEnd]
+{ valueUSD: 193.67368642561595 }
+[ 2022-04-20T07:00:00.000Z, 0.00002536455398544774, 391.3192231936331 ]
+[getState] token SHIB
+  SHIB
+[POST /track-transaction]
+req.body
+{
+  token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTg5MDd9.rWM2oknwXqygZBwnRjUP2gm9h7-9ytGzrJTdadHx-mo',
+  transactionType: 'SELL',
+  transactionHash: '0x5085b69a6dccc8523fcfe96a7fa46881bbb20f221f08601a10c2d40824d85737',
+  boughtDate: '2022-05-20T07:00:00.000Z'
+}
+[verifyToken] verifying eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTg5MDd9.rWM2oknwXqygZBwnRjUP2gm9h7-9ytGzrJTdadHx-mo
+[Verify Token Ok] [object Object]
+[getUsernameOfUserId] id 27
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "username", "password" FROM "users" AS "user" WHERE "user"."id" = 27;
+[getHashData] 0x5085b69a6dccc8523fcfe96a7fa46881bbb20f221f08601a10c2d40824d85737
+[getHashDatas] getHashData - eth network
+[getHashDatas] getHashData - eth, layer 2 data found
+[getGeckoUSDPrice] 2022-05-28 23:45:11 BNB binancecoin
+[getGeckoUSDPrice] 28-05-2022 
+{
+  success: true,
+  message: 'OK',
+  code: 200,
+  data: {
+    id: 'binancecoin',
+    symbol: 'bnb',
+    name: 'BNB',
+    localization: {
+      en: 'BNB',
+      de: 'BNB',
+      es: 'BNB',
+      fr: 'BNB',
+      it: 'BNB',
+      pl: 'BNB',
+      ro: 'BNB',
+      hu: 'BNB',
+      nl: 'BNB',
+      pt: 'BNB',
+      sv: 'BNB',
+      vi: 'BNB',
+      tr: 'BNB',
+      ru: 'BNB',
+      ja: 'バイナンスコイン',
+      zh: '币安币',
+      'zh-tw': '幣安幣',
+      ko: '바이낸스 코인',
+      ar: 'BNB',
+      th: 'BNB',
+      id: 'BNB',
+      cs: 'BNB',
+      da: 'BNB',
+      el: 'BNB',
+      hi: 'BNB',
+      no: 'BNB',
+      sk: 'BNB',
+      uk: 'BNB',
+      he: 'BNB',
+      fi: 'BNB',
+      bg: 'BNB',
+      hr: 'BNB',
+      lt: 'BNB',
+      sl: 'BNB'
+    },
+    image: {
+      thumb: 'https://assets.coingecko.com/coins/images/825/thumb/bnb-icon2_2x.png?1644979850',
+      small: 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png?1644979850'
+    },
+    market_data: {
+      current_price: [Object],
+      market_cap: [Object],
+      total_volume: [Object]
+    },
+    community_data: {
+      facebook_likes: null,
+      twitter_followers: 8939182,
+      reddit_average_posts_48h: 6.9,
+      reddit_average_comments_48h: 109.3,
+      reddit_subscribers: 860181,
+      reddit_accounts_active_48h: '924.909090909091'
+    },
+    developer_data: {
+      forks: 2056,
+      stars: 3680,
+      subscribers: 512,
+      total_issues: 125,
+      closed_issues: 125,
+      pull_requests_merged: 55,
+      pull_request_contributors: 26,
+      code_additions_deletions_4_weeks: [Object],
+      commit_count_4_weeks: 0
+    },
+    public_interest_stats: { alexa_rank: 100, bing_matches: null }
+  }
+}
+{
+  valueUSD: 18.076023057584386,
+  date: '2022-05-28 23:45:11',
+  token: 'BNB',
+  network: 'ETH',
+  transactionHash: '0x5085b69a6dccc8523fcfe96a7fa46881bbb20f221f08601a10c2d40824d85737'
+}
+18.076023057584386
+[getGeckoUSDPrice] 2022-05-20T07:00:00.000Z BNB binancecoin
+[getGeckoUSDPrice] 20-05-2022 
+{
+  success: true,
+  message: 'OK',
+  code: 200,
+  data: {
+    id: 'binancecoin',
+    symbol: 'bnb',
+    name: 'BNB',
+    localization: {
+      en: 'BNB',
+      de: 'BNB',
+      es: 'BNB',
+      fr: 'BNB',
+      it: 'BNB',
+      pl: 'BNB',
+      ro: 'BNB',
+      hu: 'BNB',
+      nl: 'BNB',
+      pt: 'BNB',
+      sv: 'BNB',
+      vi: 'BNB',
+      tr: 'BNB',
+      ru: 'BNB',
+      ja: 'バイナンスコイン',
+      zh: '币安币',
+      'zh-tw': '幣安幣',
+      ko: '바이낸스 코인',
+      ar: 'BNB',
+      th: 'BNB',
+      id: 'BNB',
+      cs: 'BNB',
+      da: 'BNB',
+      el: 'BNB',
+      hi: 'BNB',
+      no: 'BNB',
+      sk: 'BNB',
+      uk: 'BNB',
+      he: 'BNB',
+      fi: 'BNB',
+      bg: 'BNB',
+      hr: 'BNB',
+      lt: 'BNB',
+      sl: 'BNB'
+    },
+    image: {
+      thumb: 'https://assets.coingecko.com/coins/images/825/thumb/bnb-icon2_2x.png?1644979850',
+      small: 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png?1644979850'
+    },
+    market_data: {
+      current_price: [Object],
+      market_cap: [Object],
+      total_volume: [Object]
+    },
+    community_data: {
+      facebook_likes: null,
+      twitter_followers: 8861290,
+      reddit_average_posts_48h: 9,
+      reddit_average_comments_48h: 163.125,
+      reddit_subscribers: 858058,
+      reddit_accounts_active_48h: '1001.66666666667'
+    },
+    developer_data: {
+      forks: null,
+      stars: null,
+      subscribers: null,
+      total_issues: null,
+      closed_issues: null,
+      pull_requests_merged: null,
+      pull_request_contributors: null,
+      code_additions_deletions_4_weeks: [Object],
+      commit_count_4_weeks: null
+    },
+    public_interest_stats: { alexa_rank: 100, bing_matches: null }
+  }
+}
+[transactionToSubmit]
+{
+  tracker: 't',
+  type: 'SELL',
+  valueUSD: 18.076023057584386,
+  value: 0.06,
+  date: '2022-05-28 23:45:11',
+  token: 'BNB',
+  network: 'ETH',
+  transactionHash: '0x5085b69a6dccc8523fcfe96a7fa46881bbb20f221f08601a10c2d40824d85737',
+  boughtDate: '2022-05-20T07:00:00.000Z',
+  boughtUnitPrice: 307.630493551344,
+  boughtValue: 18.457829613080637
+}
+[Transaction Add Record]
+Executing (default): INSERT INTO "tracked_transactions" ("id","created_at","updated_at","tracker","value","network","token","valueUSD","date","type","transaction_hash","unit_cost_price","bought_date","bought_value") VALUES (DEFAULT,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING "id","created_at","updated_at","tracker","value","network","token","valueUSD","date","type","transaction_hash","unit_cost_price","bought_date","bought_value";
+TransactionDV
+[cpc] transactionDvs
+[
+  {
+    id: 28,
+    tracker: 't',
+    type: 'SELL',
+    boughtValue: 18.457829613080637,
+    boughtDate: 2022-05-20T07:00:00.000Z,
+    token: 'BNB',
+    transactionHash: '0x5085b69a6dccc8523fcfe96a7fa46881bbb20f221f08601a10c2d40824d85737',
+    value: 0.06,
+    valueUSD: 18.076023057584386,
+    boughtUnitPrice: 307.630493551344,
+    date: 2022-05-29T06:45:11.000Z,
+    network: 'ETH',
+    updatedAt: 2022-06-02T19:42:35.048Z,
+    createdAt: 2022-06-02T19:42:35.048Z
+  }
+]
+[PriceChecker ] adding BNB
+[PriceChecker]
+{
+  BNB: { value: 304.62920407758406, date: '2022-06-02T19:41:00.000Z' }
+}
+[transactionDbToFrontEnd]
+{ valueUSD: 18.076023057584386 }
+[ 2022-05-20T07:00:00.000Z, 307.630493551344, 18.457829613080637 ]
+[getState] token BNB
+  BNB
+[get /all-transactions]
+[verifyToken] verifying eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTg5MDd9.rWM2oknwXqygZBwnRjUP2gm9h7-9ytGzrJTdadHx-mo
+[Verify Token Ok] [object Object]
+[getUsernameOfUserId] id 27
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "username", "password" FROM "users" AS "user" WHERE "user"."id" = 27;
+{"column":null,"parameters":null}
+[getTransactionsOfUser] for username t production false
+filter---
+object
+{ column: null, parameters: null }
+[getTxOfUserWithFilterFn] column null
+[getTxOfUserWithFilterFn] params 
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "tracker", "value", "network", "token", "valueUSD", "date", "type", "transaction_hash" AS "transactionHash", "unit_cost_price" AS "boughtUnitPrice", "bought_date" AS "boughtDate", "bought_value" AS "boughtValue" FROM "tracked_transactions" AS "trackedTransaction" WHERE "trackedTransaction"."tracker" = 't';
+[get /all-transactions] transactions of Users Retrieved
+[
+  {
+    id: 26,
+    createdAt: 2022-06-02T19:41:54.080Z,
+    updatedAt: 2022-06-02T19:41:54.080Z,
+    tracker: 't',
+    value: 1398.52867612,
+    network: 'ETH',
+    token: 'HEX',
+    valueUSD: 184.3151043531173,
+    date: 2022-05-16T01:04:08.000Z,
+    type: 'BUY',
+    transactionHash: '0xd9f2fa44e56b94d74bce8d5e7e2617e6ae60af8917601cff21b4f4b01b977a74',
+    boughtUnitPrice: 0.13179215235290767,
+    boughtDate: 2022-05-16T01:04:08.000Z,
+    boughtValue: 184.3151043531173
+  },
+  {
+    id: 27,
+    createdAt: 2022-06-02T19:42:17.932Z,
+    updatedAt: 2022-06-02T19:42:17.932Z,
+    tracker: 't',
+    value: 15427798.31327381,
+    network: 'ETH',
+    token: 'SHIB',
+    valueUSD: 193.67368642561595,
+    date: 2022-05-16T01:11:28.000Z,
+    type: 'SELL',
+    transactionHash: '0x57bf07e61b2b8d48bb4a3a4a094e0d614e9a461e066d8146056aeb5a8adf7611',
+    boughtUnitPrice: 0.00002536455398544774,
+    boughtDate: 2022-04-20T07:00:00.000Z,
+    boughtValue: 391.3192231936331
+  },
+  {
+    id: 28,
+    createdAt: 2022-06-02T19:42:35.048Z,
+    updatedAt: 2022-06-02T19:42:35.048Z,
+    tracker: 't',
+    value: 0.06,
+    network: 'ETH',
+    token: 'BNB',
+    valueUSD: 18.076023057584386,
+    date: 2022-05-29T06:45:11.000Z,
+    type: 'SELL',
+    transactionHash: '0x5085b69a6dccc8523fcfe96a7fa46881bbb20f221f08601a10c2d40824d85737',
+    boughtUnitPrice: 307.630493551344,
+    boughtDate: 2022-05-20T07:00:00.000Z,
+    boughtValue: 18.457829613080637
+  }
+]
+TransactionDV
+[cpc] transactionDvs
+[
+  {
+    id: 26,
+    createdAt: 2022-06-02T19:41:54.080Z,
+    updatedAt: 2022-06-02T19:41:54.080Z,
+    tracker: 't',
+    value: 1398.52867612,
+    network: 'ETH',
+    token: 'HEX',
+    valueUSD: 184.3151043531173,
+    date: 2022-05-16T01:04:08.000Z,
+    type: 'BUY',
+    transactionHash: '0xd9f2fa44e56b94d74bce8d5e7e2617e6ae60af8917601cff21b4f4b01b977a74',
+    boughtUnitPrice: 0.13179215235290767,
+    boughtDate: 2022-05-16T01:04:08.000Z,
+    boughtValue: 184.3151043531173
+  },
+  {
+    id: 27,
+    createdAt: 2022-06-02T19:42:17.932Z,
+    updatedAt: 2022-06-02T19:42:17.932Z,
+    tracker: 't',
+    value: 15427798.31327381,
+    network: 'ETH',
+    token: 'SHIB',
+    valueUSD: 193.67368642561595,
+    date: 2022-05-16T01:11:28.000Z,
+    type: 'SELL',
+    transactionHash: '0x57bf07e61b2b8d48bb4a3a4a094e0d614e9a461e066d8146056aeb5a8adf7611',
+    boughtUnitPrice: 0.00002536455398544774,
+    boughtDate: 2022-04-20T07:00:00.000Z,
+    boughtValue: 391.3192231936331
+  },
+  {
+    id: 28,
+    createdAt: 2022-06-02T19:42:35.048Z,
+    updatedAt: 2022-06-02T19:42:35.048Z,
+    tracker: 't',
+    value: 0.06,
+    network: 'ETH',
+    token: 'BNB',
+    valueUSD: 18.076023057584386,
+    date: 2022-05-29T06:45:11.000Z,
+    type: 'SELL',
+    transactionHash: '0x5085b69a6dccc8523fcfe96a7fa46881bbb20f221f08601a10c2d40824d85737',
+    boughtUnitPrice: 307.630493551344,
+    boughtDate: 2022-05-20T07:00:00.000Z,
+    boughtValue: 18.457829613080637
+  }
+]
+[PriceChecker ] adding HEX
+[PriceChecker ] adding SHIB
+[PriceChecker ] adding BNB
+[PriceChecker]
+{
+  HEX: { value: 0.06712107316109302, date: '2022-06-02T19:41:00.000Z' },
+  SHIB: { value: 0.000011091847627446735, date: '2022-06-02T19:41:00.000Z' },
+  BNB: { value: 304.62920407758406, date: '2022-06-02T19:41:00.000Z' }
+}
+[transactionDbToFrontEnd]
+{ valueUSD: 184.3151043531173 }
+[transactionDbToFrontEnd]
+{ valueUSD: 193.67368642561595 }
+[ 2022-04-20T07:00:00.000Z, 0.00002536455398544774, 391.3192231936331 ]
+[transactionDbToFrontEnd]
+{ valueUSD: 18.076023057584386 }
+[ 2022-05-20T07:00:00.000Z, 307.630493551344, 18.457829613080637 ]
+[getState] token HEX
+[getState] token SHIB
+[getState] token BNB
+  HEX
+  SHIB
+  BNB
+Server [GET /get-transaction]
+{
+  token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTg5MDd9.rWM2oknwXqygZBwnRjUP2gm9h7-9ytGzrJTdadHx-mo',
+  dbtransactionId: '26'
+}
+[verifyToken] verifying eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTg5MDd9.rWM2oknwXqygZBwnRjUP2gm9h7-9ytGzrJTdadHx-mo
+[Verify Token Ok] [object Object]
+[getUsernameOfUserId] id 27
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "username", "password" FROM "users" AS "user" WHERE "user"."id" = 27;
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "tracker", "value", "network", "token", "valueUSD", "date", "type", "transaction_hash" AS "transactionHash", "unit_cost_price" AS "boughtUnitPrice", "bought_date" AS "boughtDate", "bought_value" AS "boughtValue" FROM "tracked_transactions" AS "trackedTransaction" WHERE "trackedTransaction"."id" = '26';
+TransactionDV
+[cpc] transactionDvs
+[
+  {
+    id: 26,
+    createdAt: 2022-06-02T19:41:54.080Z,
+    updatedAt: 2022-06-02T19:41:54.080Z,
+    tracker: 't',
+    value: 1398.52867612,
+    network: 'ETH',
+    token: 'HEX',
+    valueUSD: 184.3151043531173,
+    date: 2022-05-16T01:04:08.000Z,
+    type: 'BUY',
+    transactionHash: '0xd9f2fa44e56b94d74bce8d5e7e2617e6ae60af8917601cff21b4f4b01b977a74',
+    boughtUnitPrice: 0.13179215235290767,
+    boughtDate: 2022-05-16T01:04:08.000Z,
+    boughtValue: 184.3151043531173
+  }
+]
+[PriceChecker ] adding HEX
+[PriceChecker]
+{
+  HEX: { value: 0.06712107316109302, date: '2022-06-02T19:41:00.000Z' }
+}
+[transactionDbToFrontEnd]
+{ valueUSD: 184.3151043531173 }
+[getState] token HEX
+  HEX
+[get /all-transactions]
+[verifyToken] verifying eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTg5MDd9.rWM2oknwXqygZBwnRjUP2gm9h7-9ytGzrJTdadHx-mo
+[Verify Token Ok] [object Object]
+[getUsernameOfUserId] id 27
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "username", "password" FROM "users" AS "user" WHERE "user"."id" = 27;
+{"column":null,"parameters":null}
+[getTransactionsOfUser] for username t production false
+filter---
+object
+{ column: null, parameters: null }
+[getTxOfUserWithFilterFn] column null
+[getTxOfUserWithFilterFn] params 
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "tracker", "value", "network", "token", "valueUSD", "date", "type", "transaction_hash" AS "transactionHash", "unit_cost_price" AS "boughtUnitPrice", "bought_date" AS "boughtDate", "bought_value" AS "boughtValue" FROM "tracked_transactions" AS "trackedTransaction" WHERE "trackedTransaction"."tracker" = 't';
+[get /all-transactions] transactions of Users Retrieved
+[
+  {
+    id: 26,
+    createdAt: 2022-06-02T19:41:54.080Z,
+    updatedAt: 2022-06-02T19:41:54.080Z,
+    tracker: 't',
+    value: 1398.52867612,
+    network: 'ETH',
+    token: 'HEX',
+    valueUSD: 184.3151043531173,
+    date: 2022-05-16T01:04:08.000Z,
+    type: 'BUY',
+    transactionHash: '0xd9f2fa44e56b94d74bce8d5e7e2617e6ae60af8917601cff21b4f4b01b977a74',
+    boughtUnitPrice: 0.13179215235290767,
+    boughtDate: 2022-05-16T01:04:08.000Z,
+    boughtValue: 184.3151043531173
+  },
+  {
+    id: 27,
+    createdAt: 2022-06-02T19:42:17.932Z,
+    updatedAt: 2022-06-02T19:42:17.932Z,
+    tracker: 't',
+    value: 15427798.31327381,
+    network: 'ETH',
+    token: 'SHIB',
+    valueUSD: 193.67368642561595,
+    date: 2022-05-16T01:11:28.000Z,
+    type: 'SELL',
+    transactionHash: '0x57bf07e61b2b8d48bb4a3a4a094e0d614e9a461e066d8146056aeb5a8adf7611',
+    boughtUnitPrice: 0.00002536455398544774,
+    boughtDate: 2022-04-20T07:00:00.000Z,
+    boughtValue: 391.3192231936331
+  },
+  {
+    id: 28,
+    createdAt: 2022-06-02T19:42:35.048Z,
+    updatedAt: 2022-06-02T19:42:35.048Z,
+    tracker: 't',
+    value: 0.06,
+    network: 'ETH',
+    token: 'BNB',
+    valueUSD: 18.076023057584386,
+    date: 2022-05-29T06:45:11.000Z,
+    type: 'SELL',
+    transactionHash: '0x5085b69a6dccc8523fcfe96a7fa46881bbb20f221f08601a10c2d40824d85737',
+    boughtUnitPrice: 307.630493551344,
+    boughtDate: 2022-05-20T07:00:00.000Z,
+    boughtValue: 18.457829613080637
+  }
+]
+TransactionDV
+[cpc] transactionDvs
+[
+  {
+    id: 26,
+    createdAt: 2022-06-02T19:41:54.080Z,
+    updatedAt: 2022-06-02T19:41:54.080Z,
+    tracker: 't',
+    value: 1398.52867612,
+    network: 'ETH',
+    token: 'HEX',
+    valueUSD: 184.3151043531173,
+    date: 2022-05-16T01:04:08.000Z,
+    type: 'BUY',
+    transactionHash: '0xd9f2fa44e56b94d74bce8d5e7e2617e6ae60af8917601cff21b4f4b01b977a74',
+    boughtUnitPrice: 0.13179215235290767,
+    boughtDate: 2022-05-16T01:04:08.000Z,
+    boughtValue: 184.3151043531173
+  },
+  {
+    id: 27,
+    createdAt: 2022-06-02T19:42:17.932Z,
+    updatedAt: 2022-06-02T19:42:17.932Z,
+    tracker: 't',
+    value: 15427798.31327381,
+    network: 'ETH',
+    token: 'SHIB',
+    valueUSD: 193.67368642561595,
+    date: 2022-05-16T01:11:28.000Z,
+    type: 'SELL',
+    transactionHash: '0x57bf07e61b2b8d48bb4a3a4a094e0d614e9a461e066d8146056aeb5a8adf7611',
+    boughtUnitPrice: 0.00002536455398544774,
+    boughtDate: 2022-04-20T07:00:00.000Z,
+    boughtValue: 391.3192231936331
+  },
+  {
+    id: 28,
+    createdAt: 2022-06-02T19:42:35.048Z,
+    updatedAt: 2022-06-02T19:42:35.048Z,
+    tracker: 't',
+    value: 0.06,
+    network: 'ETH',
+    token: 'BNB',
+    valueUSD: 18.076023057584386,
+    date: 2022-05-29T06:45:11.000Z,
+    type: 'SELL',
+    transactionHash: '0x5085b69a6dccc8523fcfe96a7fa46881bbb20f221f08601a10c2d40824d85737',
+    boughtUnitPrice: 307.630493551344,
+    boughtDate: 2022-05-20T07:00:00.000Z,
+    boughtValue: 18.457829613080637
+  }
+]
+[PriceChecker ] adding HEX
+[PriceChecker ] adding SHIB
+[PriceChecker ] adding BNB
+[PriceChecker]
+{
+  HEX: { value: 0.06712107316109302, date: '2022-06-02T19:41:00.000Z' },
+  SHIB: { value: 0.000011091847627446735, date: '2022-06-02T19:41:00.000Z' },
+  BNB: { value: 304.62920407758406, date: '2022-06-02T19:41:00.000Z' }
+}
+[transactionDbToFrontEnd]
+{ valueUSD: 184.3151043531173 }
+[transactionDbToFrontEnd]
+{ valueUSD: 193.67368642561595 }
+[ 2022-04-20T07:00:00.000Z, 0.00002536455398544774, 391.3192231936331 ]
+[transactionDbToFrontEnd]
+{ valueUSD: 18.076023057584386 }
+[ 2022-05-20T07:00:00.000Z, 307.630493551344, 18.457829613080637 ]
+[getState] token HEX
+[getState] token SHIB
+[getState] token BNB
+  HEX
+  SHIB
+  BNB
+Server [GET /get-transaction]
+{
+  token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTg5MDd9.rWM2oknwXqygZBwnRjUP2gm9h7-9ytGzrJTdadHx-mo',
+  dbtransactionId: '26'
+}
+[verifyToken] verifying eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTg5MDd9.rWM2oknwXqygZBwnRjUP2gm9h7-9ytGzrJTdadHx-mo
+[Verify Token Ok] [object Object]
+[getUsernameOfUserId] id 27
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "username", "password" FROM "users" AS "user" WHERE "user"."id" = 27;
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "tracker", "value", "network", "token", "valueUSD", "date", "type", "transaction_hash" AS "transactionHash", "unit_cost_price" AS "boughtUnitPrice", "bought_date" AS "boughtDate", "bought_value" AS "boughtValue" FROM "tracked_transactions" AS "trackedTransaction" WHERE "trackedTransaction"."id" = '26';
+TransactionDV
+[cpc] transactionDvs
+[
+  {
+    id: 26,
+    createdAt: 2022-06-02T19:41:54.080Z,
+    updatedAt: 2022-06-02T19:41:54.080Z,
+    tracker: 't',
+    value: 1398.52867612,
+    network: 'ETH',
+    token: 'HEX',
+    valueUSD: 184.3151043531173,
+    date: 2022-05-16T01:04:08.000Z,
+    type: 'BUY',
+    transactionHash: '0xd9f2fa44e56b94d74bce8d5e7e2617e6ae60af8917601cff21b4f4b01b977a74',
+    boughtUnitPrice: 0.13179215235290767,
+    boughtDate: 2022-05-16T01:04:08.000Z,
+    boughtValue: 184.3151043531173
+  }
+]
+[PriceChecker ] adding HEX
+[PriceChecker]
+{
+  HEX: { value: 0.06712107316109302, date: '2022-06-02T19:41:00.000Z' }
+}
+[transactionDbToFrontEnd]
+{ valueUSD: 184.3151043531173 }
+[getState] token HEX
+  HEX
+[get /all-transactions]
+[verifyToken] verifying eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTg5MDd9.rWM2oknwXqygZBwnRjUP2gm9h7-9ytGzrJTdadHx-mo
+[Verify Token Ok] [object Object]
+[getUsernameOfUserId] id 27
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "username", "password" FROM "users" AS "user" WHERE "user"."id" = 27;
+{"column":null,"parameters":null}
+[getTransactionsOfUser] for username t production false
+filter---
+object
+{ column: null, parameters: null }
+[getTxOfUserWithFilterFn] column null
+[getTxOfUserWithFilterFn] params 
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "tracker", "value", "network", "token", "valueUSD", "date", "type", "transaction_hash" AS "transactionHash", "unit_cost_price" AS "boughtUnitPrice", "bought_date" AS "boughtDate", "bought_value" AS "boughtValue" FROM "tracked_transactions" AS "trackedTransaction" WHERE "trackedTransaction"."tracker" = 't';
+[get /all-transactions] transactions of Users Retrieved
+[
+  {
+    id: 26,
+    createdAt: 2022-06-02T19:41:54.080Z,
+    updatedAt: 2022-06-02T19:41:54.080Z,
+    tracker: 't',
+    value: 1398.52867612,
+    network: 'ETH',
+    token: 'HEX',
+    valueUSD: 184.3151043531173,
+    date: 2022-05-16T01:04:08.000Z,
+    type: 'BUY',
+    transactionHash: '0xd9f2fa44e56b94d74bce8d5e7e2617e6ae60af8917601cff21b4f4b01b977a74',
+    boughtUnitPrice: 0.13179215235290767,
+    boughtDate: 2022-05-16T01:04:08.000Z,
+    boughtValue: 184.3151043531173
+  },
+  {
+    id: 27,
+    createdAt: 2022-06-02T19:42:17.932Z,
+    updatedAt: 2022-06-02T19:42:17.932Z,
+    tracker: 't',
+    value: 15427798.31327381,
+    network: 'ETH',
+    token: 'SHIB',
+    valueUSD: 193.67368642561595,
+    date: 2022-05-16T01:11:28.000Z,
+    type: 'SELL',
+    transactionHash: '0x57bf07e61b2b8d48bb4a3a4a094e0d614e9a461e066d8146056aeb5a8adf7611',
+    boughtUnitPrice: 0.00002536455398544774,
+    boughtDate: 2022-04-20T07:00:00.000Z,
+    boughtValue: 391.3192231936331
+  },
+  {
+    id: 28,
+    createdAt: 2022-06-02T19:42:35.048Z,
+    updatedAt: 2022-06-02T19:42:35.048Z,
+    tracker: 't',
+    value: 0.06,
+    network: 'ETH',
+    token: 'BNB',
+    valueUSD: 18.076023057584386,
+    date: 2022-05-29T06:45:11.000Z,
+    type: 'SELL',
+    transactionHash: '0x5085b69a6dccc8523fcfe96a7fa46881bbb20f221f08601a10c2d40824d85737',
+    boughtUnitPrice: 307.630493551344,
+    boughtDate: 2022-05-20T07:00:00.000Z,
+    boughtValue: 18.457829613080637
+  }
+]
+TransactionDV
+[cpc] transactionDvs
+[
+  {
+    id: 26,
+    createdAt: 2022-06-02T19:41:54.080Z,
+    updatedAt: 2022-06-02T19:41:54.080Z,
+    tracker: 't',
+    value: 1398.52867612,
+    network: 'ETH',
+    token: 'HEX',
+    valueUSD: 184.3151043531173,
+    date: 2022-05-16T01:04:08.000Z,
+    type: 'BUY',
+    transactionHash: '0xd9f2fa44e56b94d74bce8d5e7e2617e6ae60af8917601cff21b4f4b01b977a74',
+    boughtUnitPrice: 0.13179215235290767,
+    boughtDate: 2022-05-16T01:04:08.000Z,
+    boughtValue: 184.3151043531173
+  },
+  {
+    id: 27,
+    createdAt: 2022-06-02T19:42:17.932Z,
+    updatedAt: 2022-06-02T19:42:17.932Z,
+    tracker: 't',
+    value: 15427798.31327381,
+    network: 'ETH',
+    token: 'SHIB',
+    valueUSD: 193.67368642561595,
+    date: 2022-05-16T01:11:28.000Z,
+    type: 'SELL',
+    transactionHash: '0x57bf07e61b2b8d48bb4a3a4a094e0d614e9a461e066d8146056aeb5a8adf7611',
+    boughtUnitPrice: 0.00002536455398544774,
+    boughtDate: 2022-04-20T07:00:00.000Z,
+    boughtValue: 391.3192231936331
+  },
+  {
+    id: 28,
+    createdAt: 2022-06-02T19:42:35.048Z,
+    updatedAt: 2022-06-02T19:42:35.048Z,
+    tracker: 't',
+    value: 0.06,
+    network: 'ETH',
+    token: 'BNB',
+    valueUSD: 18.076023057584386,
+    date: 2022-05-29T06:45:11.000Z,
+    type: 'SELL',
+    transactionHash: '0x5085b69a6dccc8523fcfe96a7fa46881bbb20f221f08601a10c2d40824d85737',
+    boughtUnitPrice: 307.630493551344,
+    boughtDate: 2022-05-20T07:00:00.000Z,
+    boughtValue: 18.457829613080637
+  }
+]
+[PriceChecker ] adding HEX
+[PriceChecker ] adding SHIB
+[PriceChecker ] adding BNB
+[PriceChecker]
+{
+  HEX: { value: 0.06712107316109302, date: '2022-06-02T19:41:00.000Z' },
+  SHIB: { value: 0.000011091847627446735, date: '2022-06-02T19:41:00.000Z' },
+  BNB: { value: 304.62920407758406, date: '2022-06-02T19:41:00.000Z' }
+}
+[transactionDbToFrontEnd]
+{ valueUSD: 184.3151043531173 }
+[transactionDbToFrontEnd]
+{ valueUSD: 193.67368642561595 }
+[ 2022-04-20T07:00:00.000Z, 0.00002536455398544774, 391.3192231936331 ]
+[transactionDbToFrontEnd]
+{ valueUSD: 18.076023057584386 }
+[ 2022-05-20T07:00:00.000Z, 307.630493551344, 18.457829613080637 ]
+[getState] token HEX
+[getState] token SHIB
+[getState] token BNB
+  HEX
+  SHIB
+  BNB
+Server [GET /get-transaction]
+{
+  token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTg5MDd9.rWM2oknwXqygZBwnRjUP2gm9h7-9ytGzrJTdadHx-mo',
+  dbtransactionId: '26'
+}
+[verifyToken] verifying eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTg5MDd9.rWM2oknwXqygZBwnRjUP2gm9h7-9ytGzrJTdadHx-mo
+[Verify Token Ok] [object Object]
+[getUsernameOfUserId] id 27
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "username", "password" FROM "users" AS "user" WHERE "user"."id" = 27;
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "tracker", "value", "network", "token", "valueUSD", "date", "type", "transaction_hash" AS "transactionHash", "unit_cost_price" AS "boughtUnitPrice", "bought_date" AS "boughtDate", "bought_value" AS "boughtValue" FROM "tracked_transactions" AS "trackedTransaction" WHERE "trackedTransaction"."id" = '26';
+TransactionDV
+[cpc] transactionDvs
+[
+  {
+    id: 26,
+    createdAt: 2022-06-02T19:41:54.080Z,
+    updatedAt: 2022-06-02T19:41:54.080Z,
+    tracker: 't',
+    value: 1398.52867612,
+    network: 'ETH',
+    token: 'HEX',
+    valueUSD: 184.3151043531173,
+    date: 2022-05-16T01:04:08.000Z,
+    type: 'BUY',
+    transactionHash: '0xd9f2fa44e56b94d74bce8d5e7e2617e6ae60af8917601cff21b4f4b01b977a74',
+    boughtUnitPrice: 0.13179215235290767,
+    boughtDate: 2022-05-16T01:04:08.000Z,
+    boughtValue: 184.3151043531173
+  }
+]
+[PriceChecker ] adding HEX
+[PriceChecker]
+{
+  HEX: { value: 0.06712107316109302, date: '2022-06-02T19:41:00.000Z' }
+}
+[transactionDbToFrontEnd]
+{ valueUSD: 184.3151043531173 }
+[getState] token HEX
+  HEX
+[GET /login]
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "username", "password" FROM "users" AS "user" WHERE "user"."username" = 't' LIMIT 1;
+[newAuthToken]
+[POST /track-transaction]
+req.body
+{
+  token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTkwOTd9._1kJGgpfr1-R84pJpe8BbynDdJy5IkOtMB_bgX6NXJI',
+  transactionType: 'BUY',
+  transactionHash: '0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac',
+  boughtDate: '2022-06-02T19:44:58.604Z'
+}
+[verifyToken] verifying eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTkwOTd9._1kJGgpfr1-R84pJpe8BbynDdJy5IkOtMB_bgX6NXJI
+[Verify Token Ok] [object Object]
+[getUsernameOfUserId] id 27
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "username", "password" FROM "users" AS "user" WHERE "user"."id" = 27;
+[getHashData] 0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac
+[getHashDatas] getHashData - eth network
+[getHashDatas] getHashData - eth, layer 2 data not found
+[getHashDatas] eth error
+[getHashDatas] getHashData - btc
+[getHashDatas] btc error
+RangeError [ERR_HTTP_INVALID_STATUS_CODE]: Invalid status code: { msg: 'insufficient hash data' }
+    at new NodeError (internal/errors.js:322:7)
+    at ServerResponse.writeHead (_http_server.js:259:11)
+    at ServerResponse._implicitHeader (_http_server.js:250:8)
+    at write_ (_http_outgoing.js:711:9)
+    at ServerResponse.end (_http_outgoing.js:825:5)
+    at ServerResponse.send (/Users/grace/Desktop/bootcamp/projects/project5/proj-5-back-end/node_modules/express/lib/response.js:232:10)
+    at ServerResponse.sendStatus (/Users/grace/Desktop/bootcamp/projects/project5/proj-5-back-end/node_modules/express/lib/response.js:375:15)
+    at track (file:///Users/grace/Desktop/bootcamp/projects/project5/proj-5-back-end/express/index.js:164:36)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:95:5) {
+  code: 'ERR_HTTP_INVALID_STATUS_CODE'
+}
+[GET /login]
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "username", "password" FROM "users" AS "user" WHERE "user"."username" = 't' LIMIT 1;
+[newAuthToken]
+[get /all-transactions]
+[verifyToken] verifying eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTkxMDh9.viUi_67v1C0-9nETpSyXeMrJOX_T_AQsZeW16xdZsy8
+[Verify Token Ok] [object Object]
+[getUsernameOfUserId] id 27
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "username", "password" FROM "users" AS "user" WHERE "user"."id" = 27;
+{"column":null,"parameters":null}
+[getTransactionsOfUser] for username t production false
+filter---
+object
+{ column: null, parameters: null }
+[getTxOfUserWithFilterFn] column null
+[getTxOfUserWithFilterFn] params 
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "tracker", "value", "network", "token", "valueUSD", "date", "type", "transaction_hash" AS "transactionHash", "unit_cost_price" AS "boughtUnitPrice", "bought_date" AS "boughtDate", "bought_value" AS "boughtValue" FROM "tracked_transactions" AS "trackedTransaction" WHERE "trackedTransaction"."tracker" = 't';
+[get /all-transactions] transactions of Users Retrieved
+[
+  {
+    id: 26,
+    createdAt: 2022-06-02T19:41:54.080Z,
+    updatedAt: 2022-06-02T19:41:54.080Z,
+    tracker: 't',
+    value: 1398.52867612,
+    network: 'ETH',
+    token: 'HEX',
+    valueUSD: 184.3151043531173,
+    date: 2022-05-16T01:04:08.000Z,
+    type: 'BUY',
+    transactionHash: '0xd9f2fa44e56b94d74bce8d5e7e2617e6ae60af8917601cff21b4f4b01b977a74',
+    boughtUnitPrice: 0.13179215235290767,
+    boughtDate: 2022-05-16T01:04:08.000Z,
+    boughtValue: 184.3151043531173
+  },
+  {
+    id: 27,
+    createdAt: 2022-06-02T19:42:17.932Z,
+    updatedAt: 2022-06-02T19:42:17.932Z,
+    tracker: 't',
+    value: 15427798.31327381,
+    network: 'ETH',
+    token: 'SHIB',
+    valueUSD: 193.67368642561595,
+    date: 2022-05-16T01:11:28.000Z,
+    type: 'SELL',
+    transactionHash: '0x57bf07e61b2b8d48bb4a3a4a094e0d614e9a461e066d8146056aeb5a8adf7611',
+    boughtUnitPrice: 0.00002536455398544774,
+    boughtDate: 2022-04-20T07:00:00.000Z,
+    boughtValue: 391.3192231936331
+  },
+  {
+    id: 28,
+    createdAt: 2022-06-02T19:42:35.048Z,
+    updatedAt: 2022-06-02T19:42:35.048Z,
+    tracker: 't',
+    value: 0.06,
+    network: 'ETH',
+    token: 'BNB',
+    valueUSD: 18.076023057584386,
+    date: 2022-05-29T06:45:11.000Z,
+    type: 'SELL',
+    transactionHash: '0x5085b69a6dccc8523fcfe96a7fa46881bbb20f221f08601a10c2d40824d85737',
+    boughtUnitPrice: 307.630493551344,
+    boughtDate: 2022-05-20T07:00:00.000Z,
+    boughtValue: 18.457829613080637
+  }
+]
+TransactionDV
+[cpc] transactionDvs
+[
+  {
+    id: 26,
+    createdAt: 2022-06-02T19:41:54.080Z,
+    updatedAt: 2022-06-02T19:41:54.080Z,
+    tracker: 't',
+    value: 1398.52867612,
+    network: 'ETH',
+    token: 'HEX',
+    valueUSD: 184.3151043531173,
+    date: 2022-05-16T01:04:08.000Z,
+    type: 'BUY',
+    transactionHash: '0xd9f2fa44e56b94d74bce8d5e7e2617e6ae60af8917601cff21b4f4b01b977a74',
+    boughtUnitPrice: 0.13179215235290767,
+    boughtDate: 2022-05-16T01:04:08.000Z,
+    boughtValue: 184.3151043531173
+  },
+  {
+    id: 27,
+    createdAt: 2022-06-02T19:42:17.932Z,
+    updatedAt: 2022-06-02T19:42:17.932Z,
+    tracker: 't',
+    value: 15427798.31327381,
+    network: 'ETH',
+    token: 'SHIB',
+    valueUSD: 193.67368642561595,
+    date: 2022-05-16T01:11:28.000Z,
+    type: 'SELL',
+    transactionHash: '0x57bf07e61b2b8d48bb4a3a4a094e0d614e9a461e066d8146056aeb5a8adf7611',
+    boughtUnitPrice: 0.00002536455398544774,
+    boughtDate: 2022-04-20T07:00:00.000Z,
+    boughtValue: 391.3192231936331
+  },
+  {
+    id: 28,
+    createdAt: 2022-06-02T19:42:35.048Z,
+    updatedAt: 2022-06-02T19:42:35.048Z,
+    tracker: 't',
+    value: 0.06,
+    network: 'ETH',
+    token: 'BNB',
+    valueUSD: 18.076023057584386,
+    date: 2022-05-29T06:45:11.000Z,
+    type: 'SELL',
+    transactionHash: '0x5085b69a6dccc8523fcfe96a7fa46881bbb20f221f08601a10c2d40824d85737',
+    boughtUnitPrice: 307.630493551344,
+    boughtDate: 2022-05-20T07:00:00.000Z,
+    boughtValue: 18.457829613080637
+  }
+]
+[PriceChecker ] adding HEX
+[PriceChecker ] adding SHIB
+[PriceChecker ] adding BNB
+[PriceChecker]
+{
+  HEX: { value: 0.0671617812318641, date: '2022-06-02T19:44:00.000Z' },
+  SHIB: { value: 0.000011086673904900681, date: '2022-06-02T19:43:00.000Z' },
+  BNB: { value: 304.5868374399558, date: '2022-06-02T19:43:00.000Z' }
+}
+[transactionDbToFrontEnd]
+{ valueUSD: 184.3151043531173 }
+[transactionDbToFrontEnd]
+{ valueUSD: 193.67368642561595 }
+[ 2022-04-20T07:00:00.000Z, 0.00002536455398544774, 391.3192231936331 ]
+[transactionDbToFrontEnd]
+{ valueUSD: 18.076023057584386 }
+[ 2022-05-20T07:00:00.000Z, 307.630493551344, 18.457829613080637 ]
+[getState] token HEX
+[getState] token SHIB
+[getState] token BNB
+  HEX
+  SHIB
+  BNB
+[GET /login]
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "username", "password" FROM "users" AS "user" WHERE "user"."username" = 't' LIMIT 1;
+[newAuthToken]
+[POST /track-transaction]
+req.body
+{
+  token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTkxNjZ9.wwtSlmpHaoe-EHVR4ZwJdp-Z5SScUiYb7LIrgZtIqgM',
+  transactionType: 'BUY',
+  transactionHash: '0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac',
+  boughtDate: '2022-06-02T19:46:06.913Z'
+}
+[verifyToken] verifying eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjI3LCJpYXQiOjE2NTQxOTkxNjZ9.wwtSlmpHaoe-EHVR4ZwJdp-Z5SScUiYb7LIrgZtIqgM
+[Verify Token Ok] [object Object]
+[getUsernameOfUserId] id 27
+Executing (default): SELECT "id", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "username", "password" FROM "users" AS "user" WHERE "user"."id" = 27;
+[getHashData] 0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac
+[getHashDatas] getHashData - eth network
+[getHashDatas] getHashData - eth, layer 2 data not found
+[getHashDatas] eth error
+[getHashDatas] getHashData - btc
+[getHashDatas] btc error
+RangeError [ERR_HTTP_INVALID_STATUS_CODE]: Invalid status code: { msg: 'insufficient hash data' }
+    at new NodeError (internal/errors.js:322:7)
+    at ServerResponse.writeHead (_http_server.js:259:11)
+    at ServerResponse._implicitHeader (_http_server.js:250:8)
+    at write_ (_http_outgoing.js:711:9)
+    at ServerResponse.end (_http_outgoing.js:825:5)
+    at ServerResponse.send (/Users/grace/Desktop/bootcamp/projects/project5/proj-5-back-end/node_modules/express/lib/response.js:232:10)
+    at ServerResponse.sendStatus (/Users/grace/Desktop/bootcamp/projects/project5/proj-5-back-end/node_modules/express/lib/response.js:375:15)
+    at track (file:///Users/grace/Desktop/bootcamp/projects/project5/proj-5-back-end/express/index.js:164:36)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:95:5) {
+  code: 'ERR_HTTP_INVALID_STATUS_CODE'
+}

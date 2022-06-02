@@ -5,9 +5,10 @@ import "../typings/typings.js";
 import CoinGecko from "coingecko-api";
 const CoinGeckoClient = new CoinGecko();
 
-
 const idsOfToken = await [
   { id: "tether", symbol: "usdt", name: "Tether" },
+  { id: "binancecoin", symbol: "bnb", name: "BNB" },
+
   { id: "axie-infinity", symbol: "axs", name: "Axie Infinity" },
   { id: "uniswap", symbol: "uni", name: "Uniswap" },
   { id: "kucoin-shares", symbol: "kcs", name: "KuCoin" },
@@ -18,7 +19,7 @@ const idsOfToken = await [
   { id: "hex", symbol: "hex", name: "HEX" },
   { id: "huobi-btc", symbol: "hbtc", name: "Huobi BTC" },
   { id: "paxos-standard", symbol: "usdp", name: "Pax Dollar" },
-  { "id": "ethereum", "symbol": "eth", "name": "Ethereum" },
+  { id: "ethereum", symbol: "eth", name: "Ethereum" },
   { id: "fantom", symbol: "ftm", name: "Fantom" },
   { id: "usd-coin", symbol: "usdc", name: "USD Coin" },
   { id: "shiba-inu", symbol: "shib", name: "Shiba Inu" },
@@ -36,18 +37,17 @@ const idsOfToken = await [
   return { ...(await obj), [SYM]: id };
 }, {});
 
-
-
 export const getGeckoUSDPrice = async (_date, token) => {
-
+  console.log(`[getGeckoUSDPrice] ${_date} ${token} ${idsOfToken[token]}`);
+  const date = new Date(_date).toLocaleDateString("es-CL").toString();
   // const date = _date
-  console.log(`[getGeckoUSDPrice] ${date} ${_date} ${token} ${idsOfToken[token]}`)
-  const date = _date.toLocaleDateString("es-CL").toString()
-  console.log(`[getGeckoUSDPrice] ${date} `)
+
+  // new Date('2022-06-02T17:50:59.311Z').toLocaleDateString("es-CL").toString()
+  console.log(`[getGeckoUSDPrice] ${date} `);
   const data = await CoinGeckoClient.coins.fetchHistory(idsOfToken[token], {
     date,
   });
-  console.log(data)
+  console.log(data.success);
 
   return data?.data?.market_data?.current_price?.usd;
 };
@@ -74,10 +74,9 @@ const coinmarketConfig = coinmarketcapDvlpConfig;
  * @returns {Promise<PriceChecker>}
  */
 export const CurrentPriceChecker = async (transactionDvs) => {
+  console.log(`[cpc] transactionDvs`);
 
-  console.log(`[cpc] transactionDvs`)
-
-  console.log(transactionDvs)
+  console.log(transactionDvs);
   const PriceChecker = {};
 
   for await (const { token } of transactionDvs) {
@@ -105,9 +104,8 @@ export const CurrentPriceChecker = async (transactionDvs) => {
   return {
     PriceChecker,
     getPrice: (token) => {
-      if(!PriceChecker[token]) {
-
-        console.log("Price Checker cannot get price")
+      if (!PriceChecker[token]) {
+        console.log("Price Checker cannot get price");
       }
       return PriceChecker[token];
     },
@@ -226,6 +224,10 @@ export const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     valueUSD,
     boughtUnitPrice: _boughtUnitPrice,
   } = transactionDv;
+
+  console.log(`[transactionDbToFrontEnd]`);
+
+  console.log({ valueUSD });
   const currentUnitPrice = priceChecker.getPrice(token);
   const qty = value;
   const currentValue = {
@@ -256,16 +258,15 @@ export const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
 
   const tx = {
     hash,
-    boughtDate,
     token,
     soldValue,
-    qty,
     soldDate,
-    id,
-    boughtValue,
     soldUnitPrice,
+    qty,
+    id,
     network,
-    boughtUnitPrice,
+    boughtDate,
+    boughtValue,
     boughtUnitPrice,
     transactionType,
     txValue,
@@ -295,7 +296,7 @@ export const getView = async (transactionDvs) => {
 
 const getHashDatas = {
   eth: async (transactionHash) => {
-    console.log(`[getHashDatas] getHashData - eth`);
+    console.log(`[getHashDatas] getHashData - eth network`);
 
     const network = "ETH";
 
@@ -307,33 +308,45 @@ const getHashDatas = {
       const details = txData.data.data[transactionHash].transaction;
       const erc20 = txData.data.data[transactionHash].layer_2.erc_20;
 
-      if (
-        erc20.length === 0 
-      ) {
+      if (erc20.length === 0) {
         console.log(`[getHashDatas] getHashData - eth, layer 2 data not found`);
-        const { value_usd: valueUSD, time: date, value: qtyStr } = details;
+
+        console.log(details);
+        const { value_usd, time: date, value: qtyStr } = details;
         const qty = Number(qtyStr) / 1000000000000000000;
+
+        const token = network;
+        const valueUSD = (await getGeckoUSDPrice(date, token)) * qty;
 
         return {
           valueUSD,
           value: qty,
           date,
-          token: network,
+          token,
           network,
           transactionHash,
         };
       } else {
-        const { value_usd: valueUSD, time: date } = details;
+        const { value_usd, time: date } = details;
         console.log(`[getHashDatas] getHashData - eth, layer 2 data found`);
         const firstErcLog = erc20[0];
 
         const { token_symbol: token, value_approximate: value } = firstErcLog;
-        if(token === ""){
+        if (token === "") {
           return null;
         }
+        const valueUSD = (await getGeckoUSDPrice(date, token)) * value;
+
+        console.log({ valueUSD, date, token, network, transactionHash });
+
+        if (valueUSD === 0) {
+          console.warn(`[getHashDatas] getHashData - eth valueUSD missing`);
+        }
+        console.log(`${valueUSD}`);
         return { valueUSD, value, date, token, network, transactionHash };
       }
     } catch (err) {
+      console.log(err);
       console.log(`[getHashDatas] eth error`);
       return null;
     }

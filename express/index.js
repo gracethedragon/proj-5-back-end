@@ -113,6 +113,7 @@ const mw = ((db) => {
       },
       delete: async (req, res) => {
         console.log(`Server [DELETE /transaction]`);
+
         const { token, dbtransactionId } = req.query;
 
         const [_, sub, __] = await db.api.auth.verifyToken(token);
@@ -150,41 +151,64 @@ const mw = ((db) => {
           transactionHash,
           boughtDate,
         } = req.body;
+
+        console.log(`req.body`);
+        console.log(req.body);
         try {
           const [_, sub, __] = await db.api.auth.verifyToken(token);
           /** @type {Tracker} */
           const username = await db.api.auth.getUsernameOfUserId(sub);
           const hashData = await getHashData(transactionHash);
           if (!hashData) {
-            return res.status(400).sendStatus({ msg: "insufficient hash data" });
+            return res
+              .status(400)
+              .sendStatus({ msg: "insufficient hash data" });
           }
           const boughtData = await (async (_type) => {
             if (_type === "BUY") {
-              return {
-                boughtDate: hashData.date,
-                boughtValue: hashData.valueUSD,
-                boughtUnitPrice: hashData.valueUSD / hashData.value,
-              };
-            } else if (_type === "SELL"){
-              const boughtUnitPrice = await getGeckoUSDPrice(boughtDate, hashData.token)
+              let _boughtDate = hashData.date;
 
-              if(!boughtUnitPrice){
-                throw Error("No bought unit price found")
+              const boughtUnitPrice = await getGeckoUSDPrice(
+                _boughtDate,
+                hashData.token
+              );
+
+              if (!boughtUnitPrice) {
+                throw Error("No bought unit price found for buy transaction");
               }
               return {
-                boughtDate,boughtUnitPrice,boughtValue : boughtUnitPrice * boughtDate
+                boughtDate: _boughtDate,
+                boughtValue: boughtUnitPrice * hashData.value,
+                boughtUnitPrice,
+              };
+            } else if (_type === "SELL") {
+              const boughtUnitPrice = await getGeckoUSDPrice(
+                boughtDate,
+                hashData.token
+              );
+
+              if (!boughtUnitPrice) {
+                throw Error("No bought unit price found for sell transaction");
+              }
+              return {
+                boughtDate,
+                boughtUnitPrice,
+                boughtValue: boughtUnitPrice * hashData.value,
               };
             }
           })(type);
-          
+
+          if (hashData.valueUSD === 0 || !hashData.valueUSD) {
+            console.warn("valueUSD missing");
+          }
           const transactionToSubmit = {
             tracker: username,
             type,
             ...hashData,
             ...boughtData,
           };
-          console.log(`[transactionToSubmit]`)
-          console.log(transactionToSubmit)
+          console.log(`[transactionToSubmit]`);
+          console.log(transactionToSubmit);
           const trackedTransaction = await db.api.transaction.record(
             transactionToSubmit
           );
@@ -235,6 +259,22 @@ const mw = ((db) => {
     },
 
     view: {
+      rename: async (req, res) => {
+        console.log(`[rename View]`);
+
+        const { token, viewId, viewname: viewName } = req.body;
+
+        try {
+          const renamedViewMeta = await db.api.view.rename({
+            viewId,
+            viewName,
+          });
+
+          res.status(200).send({ renamedViewMeta });
+        } catch (err) {
+          res.sendStatus(501);
+        }
+      },
       getOfTransactions: async (req, res) => {
         console.log(`[getOfTransactions]`);
         const { token, transactionId } = req.query;
@@ -275,7 +315,7 @@ const mw = ((db) => {
             viewId,
           });
           const viewName = await db.api.view.getViewNameById({ viewId });
-          console.log(`[GET /get-view] transactionIds`);
+          console.log(`[GET /get-?] transactionIds`);
 
           console.log(transactionIds);
 
@@ -391,5 +431,8 @@ app.get("/all-views", mw.view.getAll);
 app.get("/get-view", mw.view.get_);
 
 app.get("/get-views-of-transaction", mw.view.getOfTransactions);
+
+// TODO
+app.post("/rename-view", mw.view.rename);
 
 export default app;

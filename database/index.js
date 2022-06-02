@@ -226,13 +226,17 @@ const attachedTransactionApi = (
     transactionHash,
     value,
     valueUSD,
-    network,boughtDate,
-    date,boughtValue
+    network,
+    boughtDate,
+    date,
+    boughtValue,
   }) => {
     console.log(`[Transaction Add Record]`);
     return await TrackedTransaction.create({
       tracker,
-      type,boughtValue,boughtDate,
+      type,
+      boughtValue,
+      boughtDate,
       token,
       transactionHash,
       value,
@@ -362,7 +366,16 @@ const attachViewApi = ({ User, TrackedTransaction, View, ViewOwnership }) => {
       return false;
     }
   };
-
+  const rename = async ({ viewId, viewName }) => {
+    return await ViewOwnership.update(
+      { name: viewName },
+      {
+        where: {
+          id: viewId,
+        },
+      }
+    );
+  };
   const getViewIdsOfTransactionByTransactionId = async ({ transactionId }) => {
     return (
       await View.findAll({
@@ -388,7 +401,9 @@ const attachViewApi = ({ User, TrackedTransaction, View, ViewOwnership }) => {
   };
 
   const getView = async ({ viewId }) => {
-    return (await View.findAll({ viewId })).map(({ dataValues }) => dataValues);
+    return (await View.findAll({ where: { viewId } })).map(
+      ({ dataValues }) => dataValues
+    );
   };
 
   const getViewNameById = async ({ viewId }) => {
@@ -414,6 +429,7 @@ const attachViewApi = ({ User, TrackedTransaction, View, ViewOwnership }) => {
     getViewNameById,
     getViewList,
     getTransactionIdsOfView,
+    rename,
     getView,
     getViewInfoByIds,
     getViewIdsOfTransactionByTransactionId,

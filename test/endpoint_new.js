@@ -70,8 +70,7 @@ describe("transactions", async () => {
       });
     assert.strictEqual(400, resOfMalformedRequest.status);
 
-
-        // Malformed Request
+    // Malformed Request
     const resOfMalformedRequest2 = await request(app)
       .post("/track-transaction")
       .set("Accept", "application/json")
@@ -82,12 +81,8 @@ describe("transactions", async () => {
           "0x69fc14a5f3bd93253a4446e7fb70ded1b25ab1f7fdb525b8180ef944f9b56c73",
       });
     assert.strictEqual(400, resOfMalformedRequest.status);
-
-
   }).timeout(0);
   it("[001]Should be able to record transactions and add into a view", async () => {
-
-
     const token = await getToken();
     const resOfTransaction_Buy1 = await request(app)
       .post("/track-transaction")
@@ -101,37 +96,35 @@ describe("transactions", async () => {
 
     assert.strictEqual(200, resOfTransaction_Buy1.status);
 
-    const {txValue,token: token_buy1, currentValue, id:id_buy1} = resOfTransaction_Buy1.body.transactions[0]
+    const {
+      txValue,
+      token: token_buy1,
+      currentValue,
+      id: id_buy1,
+    } = resOfTransaction_Buy1.body.transactions[0];
     assert.strictEqual(token_buy1, "ETH");
 
-
-
-
-
+    return;
 
     const resOfTransaction_003_Sell = await request(app)
-    .post("/track-transaction")
-    .set("Accept", "application/json")
-    .send({
-      token,
+      .post("/track-transaction")
+      .set("Accept", "application/json")
+      .send({
+        token,
 
-      boughtDate: new Date("April-20-2020").toUTCString(),
-      boughtUnitPrice: 1300,
-      transactionType: "SELL",
-      transactionHash:
-        "0x57bf07e61b2b8d48bb4a3a4a094e0d614e9a461e066d8146056aeb5a8adf7611",
-    });
+        boughtDate: new Date("April-20-2020").toUTCString(),
+        boughtUnitPrice: 1300,
+        transactionType: "SELL",
+        transactionHash:
+          "0x57bf07e61b2b8d48bb4a3a4a094e0d614e9a461e066d8146056aeb5a8adf7611",
+      });
 
     assert.strictEqual(200, resOfTransaction_Buy1.status);
 
+    const { id: id_sell3 } = resOfTransaction_003_Sell.body.transactions[0];
 
-    const { id:id_sell3} = resOfTransaction_003_Sell.body.transactions[0]
-
-    console.log(resOfTransaction_003_Sell.body.transactions[0])
+    console.log(resOfTransaction_003_Sell.body.transactions[0]);
     assert.strictEqual(id_sell3, "SHIB");
-
-
-    
   }).timeout(0);
 
   it("------ ", async () => {
@@ -141,9 +134,7 @@ describe("transactions", async () => {
 
     // Record 3 transactions - START
 
-
-  return;
-
+    return;
 
     const resOfTransaction_Buy2 = await request(app)
       .post("/track-transaction")

@@ -25,8 +25,8 @@ const some3 = await CoinGeckoClient.coins.fetchHistory("ethereum-wormhole", {
   date: "30-12-2017",
 });
 
-const data = await CoinGeckoClient.coins.fetchHistory("shiba-inu", {
-  date: "30-12-2017",
+const data = await CoinGeckoClient.coins.fetchHistory("hex", {
+  date: "15-05-2020",
 });
 
 console.log(data);

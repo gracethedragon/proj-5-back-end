@@ -81,7 +81,6 @@ const cpc = {
 };
 
 describe("[mocha conversion DV to FE] Core (Wihout HTTP)", async () => {
-
   it("buy1DV should convert nicely", () => {
     const buy1FE = transactionDvToFrondEnd(buy1DV, cpc);
 
@@ -124,11 +123,7 @@ describe("[mocha conversion DV to FE] Core (Wihout HTTP)", async () => {
   });
 }).timeout(0);
 
-
-
-
-describe("" , async () => {
-
+describe("", async () => {
   it("should register user", async () => {
     const res = await request(app)
       .post("/register")
@@ -137,8 +132,4 @@ describe("" , async () => {
 
     assert.strictEqual(res.status, 200);
   });
-
-
-
-
-})
+});
