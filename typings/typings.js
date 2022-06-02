@@ -34,7 +34,7 @@
  * @property  {string} transactionType
  * @property  {TxValue} txValue value at the point of transaction
  * @property  {Value} currentValue
- * @property  {number} unitCostPrice
+ * @property  {number} boughtUnitPrice
  */
 
 /**
@@ -89,6 +89,8 @@
  * @property {number} valueUSD
  * @property {string} token token type
  * @property {TransactionType} type type of transaction
- * @property {number} unitCostPrice
  * @property {string} network
+ * @property {number} boughtUnitPrice
+ * @property {Date} boughtDate
+ * @property {number} boughtValue
  */

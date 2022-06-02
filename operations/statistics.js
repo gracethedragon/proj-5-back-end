@@ -163,8 +163,10 @@ export const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     type: transactionType,
     date,
     id,
+    boughtDate: _boughtDate,
+    boughtValue: _boughtValue,
     valueUSD,
-    unitCostPrice,
+    boughtUnitPrice: _boughtUnitPrice,
   } = transactionDv;
   const currentUnitPrice = priceChecker[token];
   const qty = value;
@@ -176,11 +178,16 @@ export const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
 
   const { boughtData, soldData } = ((_txType) => {
     if (_txType === "BUY") {
-      const boughtData = [date, unitCostPrice, valueUSD];
+      const boughtData = [date, _boughtUnitPrice, _boughtValue];
 
-      const sellPrice = priceChecker[token];
+      const sellPrice = priceChecker.getPrice(token);
       const soldData = [sellPrice.date, sellPrice.value, sellPrice.value * qty];
 
+      return { boughtData, soldData };
+    } else if (_txType === "SELL") {
+      const boughtData = [_boughtDate, _boughtUnitPrice, _boughtValue];
+
+      const soldData = [date, valueUSD / value, valueUSD];
       return { boughtData, soldData };
     }
   })(transactionType);
@@ -199,7 +206,7 @@ export const transactionDvToFrondEnd = (transactionDv, priceChecker) => {
     boughtValue,
     soldUnitPrice,
     network,
-    unitCostPrice,
+    boughtUnitPrice,
     boughtUnitPrice,
     transactionType,
     txValue,

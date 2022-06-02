@@ -221,7 +221,7 @@ const attachedTransactionApi = (
   const record = async ({
     tracker,
     type,
-    unitCostPrice,
+    boughtUnitPrice,
     token,
     transactionHash,
     value,
@@ -237,7 +237,7 @@ const attachedTransactionApi = (
       transactionHash,
       value,
       valueUSD,
-      unitCostPrice,
+      boughtUnitPrice,
       date,
       network,
     });

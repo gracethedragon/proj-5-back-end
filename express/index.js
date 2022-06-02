@@ -148,7 +148,7 @@ const mw = ((db) => {
           token,
           transactionType: type,
           transactionHash,
-          unitCostPrice,
+          boughtUnitPrice,
         } = req.body;
         try {
           const [_, sub, __] = await db.api.auth.verifyToken(token);
@@ -160,7 +160,7 @@ const mw = ((db) => {
           const transactionToSubmit = {
             tracker: username,
             type,
-            unitCostPrice,
+            boughtUnitPrice,
             ...hashData,
           };
 

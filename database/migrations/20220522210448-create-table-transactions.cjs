@@ -60,6 +60,13 @@ module.exports = {
       unit_cost_price: {
         type: DataTypes.DOUBLE,
       },
+
+      bought_date: {
+        type: DataTypes.DATE,
+      },
+      bought_value: {
+        type: DataTypes.DOUBLE,
+      },
     });
   },
   async down(queryInterface, _) {

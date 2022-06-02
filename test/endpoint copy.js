@@ -102,7 +102,7 @@ describe("transactions", async () => {
       .set("Accept", "application/json")
       .send({
         token,
-        unitCostPrice: 1300,
+        boughtUnitPrice: 1300,
         transactionType: "SELL",
         transactionHash:
           "0x53285927aeb2594eaa5af6d9bd8560b4abcf7e6795ae40450496770d47e075ac",
@@ -117,7 +117,7 @@ describe("transactions", async () => {
 
     assert.strictEqual(
       1300,
-      resOfTransaction_Sell.body.transactions[0].unitCostPrice
+      resOfTransaction_Sell.body.transactions[0].boughtUnitPrice
     );
     // Record 3 transactions - END
 
